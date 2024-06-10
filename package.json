@@ -1,7 +1,7 @@
 {
-  "name": "mastodon-setlist-bot",
+  "name": "rt4k-profile",
   "version": "0.0.1",
-  "description": "Mastodon Bot to Toot Setlist.fm Setlists",
+  "description": "RetroTINK-4k Profile Codec",
   "main": "index.js",
   "author": "Jonathan Griggs <jonathan.griggs@gmail.com>",
   "license": "MIT",
