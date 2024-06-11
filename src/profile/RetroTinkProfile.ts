@@ -82,10 +82,27 @@ export class RetroTinkProfile {
     this._bytes = new Uint8Array(byte_array);
   }
 
-  setValue(setting: RetroTinkSettingValue): void {
+  private _setValueWithInstance(setting: RetroTinkSettingValue): void {
     if (!RetroTinkProfile._settings.has(setting.name)) throw new SettingNotSupportedError(setting.name);
     const byte_array = Array.from(this._bytes);
     byte_array.splice(setting.address, setting.length, ...setting.value);
     this._bytes = new Uint8Array(byte_array);
+  }
+
+  private _setValueWithPrimitive(settingsKey: string, val: string | number): void {
+    if (!RetroTinkProfile._settings.has(settingsKey)) throw new SettingNotSupportedError(settingsKey);
+    const setting = this.getValue(settingsKey);
+    setting.set(val);
+    return this._setValueWithInstance(setting);
+  }
+
+  setValue(setting: RetroTinkSettingValue): void;
+  setValue(a: string, b: string | number): void;
+  setValue(a: unknown, b?: string | number): void {
+    if (typeof a === 'string' && (typeof b === 'number' || typeof b === 'string')) {
+      return this._setValueWithPrimitive(a, b);
+    } else if (a instanceof RetroTinkSettingValue) {
+      return this._setValueWithInstance(a);
+    }
   }
 }
