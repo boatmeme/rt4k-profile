@@ -1,3 +1,4 @@
+import { SettingNotSupportedError } from '../exceptions/RetroTinkProfileException';
 import { DataType } from './DataType';
 
 export interface RetroTinkSetting {
@@ -11,6 +12,11 @@ export interface RetroTinkSetting {
 class RetroTinkBaseSettings<T extends RetroTinkSetting> extends Map<string, T> {
   constructor(settings: T[] = []) {
     super(settings.map((s) => [s.name, s]));
+  }
+
+  get(key: string): T {
+    if (!this.has(key)) throw new SettingNotSupportedError(key);
+    return super.get(key);
   }
 }
 

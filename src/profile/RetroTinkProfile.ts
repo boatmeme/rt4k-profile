@@ -1,7 +1,7 @@
 import { readFileBinary } from '../utils/FileUtils';
 import { DataType } from '../settings/DataType';
 import { RetroTinkSettingValue, RetroTinkSettings, RetroTinkSettingsValues } from '../settings/RetroTinkSetting';
-import { InvalidProfileFormatError } from '../exceptions/RetroTinkProfileException';
+import { InvalidProfileFormatError, SettingNotSupportedError } from '../exceptions/RetroTinkProfileException';
 
 export class RetroTinkProfile {
   private _bytes: Uint8Array;
@@ -60,11 +60,23 @@ export class RetroTinkProfile {
     );
   }
 
+  getValue(key: string): RetroTinkSettingValue {
+    const setting = RetroTinkProfile._settings.get(key);
+    return new RetroTinkSettingValue(setting, this._bytes.slice(setting.address, setting.address + setting.length));
+  }
+
   setValues(settings: RetroTinkSettingsValues): void {
     const byte_array = Array.from(this._bytes);
     for (const setting of settings.values()) {
       byte_array.splice(setting.address, setting.length, ...setting.value);
     }
+    this._bytes = new Uint8Array(byte_array);
+  }
+
+  setValue(setting: RetroTinkSettingValue): void {
+    if (!RetroTinkProfile._settings.has(setting.name)) throw new SettingNotSupportedError(setting.name);
+    const byte_array = Array.from(this._bytes);
+    byte_array.splice(setting.address, setting.length, ...setting.value);
     this._bytes = new Uint8Array(byte_array);
   }
 }

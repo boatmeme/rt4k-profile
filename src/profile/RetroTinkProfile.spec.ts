@@ -1,4 +1,9 @@
-import { InvalidProfileFormatError, ProfileNotFoundError } from '../exceptions/RetroTinkProfileException';
+import {
+  InvalidProfileFormatError,
+  ProfileNotFoundError,
+  SettingNotSupportedError,
+} from '../exceptions/RetroTinkProfileException';
+import { RetroTinkSetting, RetroTinkSettingValue } from '../settings/RetroTinkSetting';
 import { RetroTinkProfile } from './RetroTinkProfile';
 //import { RetroTinkSettingValue } from '../settings/RetroTinkSetting';
 
@@ -37,6 +42,17 @@ describe('RetroTinkProfile', () => {
       expect(settings.get('advanced.effects.mask.path')?.asString()).toEqual('');
     });
   });
+  describe('getValue', () => {
+    test('should return the value for a valid setting', async () => {
+      const profile = await RetroTinkProfile.build(`${__dirname}/__fixtures__/mask-enabled-strength-10.rt4`);
+      const setting = profile.getValue('advanced.effects.mask.strength');
+      expect(setting.asInt()).toEqual(10);
+    });
+    test('should throw for an invalid setting', async () => {
+      const profile = await RetroTinkProfile.build(`${__dirname}/__fixtures__/mask-enabled-strength-10.rt4`);
+      expect(() => profile.getValue('some.bunko.setting')).toThrow(SettingNotSupportedError);
+    });
+  });
   describe('setValues', () => {
     test('should overwrite the defaults', async () => {
       const profile = await RetroTinkProfile.build();
@@ -48,6 +64,31 @@ describe('RetroTinkProfile', () => {
       settings = profile.getValues();
       strength = settings.get('advanced.effects.mask.strength');
       expect(strength?.asInt()).toEqual(-6);
+    });
+  });
+  describe('setValue', () => {
+    test('should overwrite the defaults', async () => {
+      const profile = await RetroTinkProfile.build();
+      let settings = profile.getValues();
+      let strength = settings.get('advanced.effects.mask.strength');
+      expect(strength).toBeDefined();
+      expect(strength.asInt()).toEqual(0);
+      strength.fromInt(-6);
+      profile.setValue(strength);
+      settings = profile.getValues();
+      strength = settings.get('advanced.effects.mask.strength');
+      expect(strength?.asInt()).toEqual(-6);
+      expect(strength.value).toEqual(new Uint8Array([250]));
+    });
+    test('unsupported setting should throw ', async () => {
+      const profile = await RetroTinkProfile.build();
+      const setting = new RetroTinkSettingValue(
+        {
+          name: 'something.unsupported',
+        } as RetroTinkSetting,
+        new Uint8Array([250]),
+      );
+      expect(() => profile.setValue(setting)).toThrow(SettingNotSupportedError);
     });
   });
 });

@@ -17,3 +17,9 @@ export class ProfileNotFoundError extends RetroTinkProfileError {
     super(message);
   }
 }
+
+export class SettingNotSupportedError extends RetroTinkProfileError {
+  constructor(settingKey: string, message = `Setting not supported: ${settingKey}`) {
+    super(message);
+  }
+}
