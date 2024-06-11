@@ -1,3 +1,5 @@
+import { DataType } from '../settings/DataType';
+
 export default class RetroTinkProfileError extends Error {
   constructor(message: string) {
     super(message);
@@ -21,5 +23,22 @@ export class ProfileNotFoundError extends RetroTinkProfileError {
 export class SettingNotSupportedError extends RetroTinkProfileError {
   constructor(settingKey: string, message = `Setting not supported: ${settingKey}`) {
     super(message);
+  }
+}
+
+export class SettingTypeError extends RetroTinkProfileError {
+  constructor(
+    settingKey: string,
+    expected: DataType,
+    val: unknown,
+    message = `Wrong Type for Setting '${settingKey}' (received: ${typeof val}, expected: ${expected})`,
+  ) {
+    super(message);
+  }
+}
+
+export class SettingValidationError extends RetroTinkProfileError {
+  constructor(settingKey: string, val: unknown, message: string) {
+    super(`(${settingKey}) failed validation with (${val}) (${message})`);
   }
 }

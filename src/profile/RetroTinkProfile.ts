@@ -1,39 +1,44 @@
 import { readFileBinary } from '../utils/FileUtils';
 import { DataType } from '../settings/DataType';
-import { RetroTinkSettingValue, RetroTinkSettings, RetroTinkSettingsValues } from '../settings/RetroTinkSetting';
+import {
+  RetroTinkSetting,
+  RetroTinkSettingValue,
+  RetroTinkSettings,
+  RetroTinkSettingsValues,
+} from '../settings/RetroTinkSetting';
 import { InvalidProfileFormatError, SettingNotSupportedError } from '../exceptions/RetroTinkProfileException';
 
 export class RetroTinkProfile {
   private _bytes: Uint8Array;
   private static _settings: RetroTinkSettings = new RetroTinkSettings([
-    {
+    new RetroTinkSetting({
       name: 'header',
       desc: 'File Header',
       address: 0x0000,
       length: 12,
       type: DataType.STR,
-    },
-    {
+    }),
+    new RetroTinkSetting({
       name: 'advanced.effects.mask.enabled',
       desc: 'Advanced -> Processing -> Mask -> Enabled',
       address: 0x008c,
       length: 1,
       type: DataType.INT,
-    },
-    {
+    }),
+    new RetroTinkSetting({
       name: 'advanced.effects.mask.strength',
       desc: 'Advanced -> Processing -> Mask -> Strength',
       address: 0x02a0,
       length: 1,
       type: DataType.SIGNED_INT,
-    },
-    {
+    }),
+    new RetroTinkSetting({
       name: 'advanced.effects.mask.path',
       desc: 'Advanced -> Processing -> Mask -> Path',
       address: 0x0090,
       length: 256,
       type: DataType.STR,
-    },
+    }),
   ]);
 
   private constructor(bytes: Uint8Array) {
@@ -60,8 +65,12 @@ export class RetroTinkProfile {
     );
   }
 
+  static get(key: string): RetroTinkSetting {
+    return RetroTinkProfile._settings.get(key);
+  }
+
   getValue(key: string): RetroTinkSettingValue {
-    const setting = RetroTinkProfile._settings.get(key);
+    const setting = RetroTinkProfile.get(key);
     return new RetroTinkSettingValue(setting, this._bytes.slice(setting.address, setting.address + setting.length));
   }
 

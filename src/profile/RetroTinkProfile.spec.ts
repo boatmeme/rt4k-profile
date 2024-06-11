@@ -59,7 +59,7 @@ describe('RetroTinkProfile', () => {
       let settings = profile.getValues();
       let strength = settings.get('advanced.effects.mask.strength');
       expect(strength?.asInt()).toEqual(0);
-      strength?.fromInt(-6);
+      strength.set(-6);
       profile.setValues(settings);
       settings = profile.getValues();
       strength = settings.get('advanced.effects.mask.strength');
@@ -73,7 +73,7 @@ describe('RetroTinkProfile', () => {
       let strength = settings.get('advanced.effects.mask.strength');
       expect(strength).toBeDefined();
       expect(strength.asInt()).toEqual(0);
-      strength.fromInt(-6);
+      strength.set(-6);
       profile.setValue(strength);
       settings = profile.getValues();
       strength = settings.get('advanced.effects.mask.strength');
