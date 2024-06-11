@@ -7,7 +7,6 @@ describe('RetroTinkProfile', () => {
     test('should build a Profile using the default profile', async () => {
       const profile = await RetroTinkProfile.build();
       expect(profile).toBeInstanceOf(RetroTinkProfile);
-      console.log(profile);
     });
     test('should throw an error with an invalid file', async () => {
       await expect(RetroTinkProfile.build(`${__dirname}/__fixtures__/not-a-valid-profile.rt4`)).rejects.toThrow(
@@ -36,6 +35,19 @@ describe('RetroTinkProfile', () => {
       expect(settings.get('advanced.effects.mask.enabled')?.asInt()).toEqual(1);
       expect(settings.get('advanced.effects.mask.strength')?.asInt()).toEqual(10);
       expect(settings.get('advanced.effects.mask.path')?.asString()).toEqual('');
+    });
+  });
+  describe('setValues', () => {
+    test('should overwrite the defaults', async () => {
+      const profile = await RetroTinkProfile.build();
+      let settings = profile.getValues();
+      let strength = settings.get('advanced.effects.mask.strength');
+      expect(strength?.asInt()).toEqual(0);
+      strength?.fromInt(-6);
+      profile.setValues(settings);
+      settings = profile.getValues();
+      strength = settings.get('advanced.effects.mask.strength');
+      expect(strength?.asInt()).toEqual(-6);
     });
   });
 });

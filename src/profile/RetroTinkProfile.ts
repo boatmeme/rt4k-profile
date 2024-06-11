@@ -60,5 +60,11 @@ export class RetroTinkProfile {
     );
   }
 
-  setValues(): void {}
+  setValues(settings: RetroTinkSettingsValues): void {
+    const byte_array = Array.from(this._bytes);
+    for (const setting of settings.values()) {
+      byte_array.splice(setting.address, setting.length, ...setting.value);
+    }
+    this._bytes = new Uint8Array(byte_array);
+  }
 }
