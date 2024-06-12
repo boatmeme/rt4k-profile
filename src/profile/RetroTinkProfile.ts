@@ -8,7 +8,7 @@ import {
 } from '../settings/RetroTinkSetting';
 import { InvalidProfileFormatError, SettingNotSupportedError } from '../exceptions/RetroTinkProfileException';
 
-export class RetroTinkProfile {
+export default class RetroTinkProfile {
   private _bytes: Uint8Array;
   private static _settings: RetroTinkSettings = new RetroTinkSettings([
     new RetroTinkSetting({
