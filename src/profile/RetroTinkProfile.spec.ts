@@ -4,7 +4,7 @@ import {
   SettingNotSupportedError,
 } from '../exceptions/RetroTinkProfileException';
 import { RetroTinkSetting, RetroTinkSettingValue } from '../settings/RetroTinkSetting';
-import { RetroTinkProfile } from './RetroTinkProfile';
+import RetroTinkProfile from './RetroTinkProfile';
 //import { RetroTinkSettingValue } from '../settings/RetroTinkSetting';
 
 describe('RetroTinkProfile', () => {
