@@ -45,7 +45,7 @@ export default class RetroTinkProfile {
     this._bytes = bytes;
   }
 
-  private static _build(bytes: Uint8Array) {
+  static fromBytes(bytes: Uint8Array) {
     const header = this._settings.get('header');
     const headerValue = new RetroTinkSettingValue(
       header,
@@ -57,12 +57,12 @@ export default class RetroTinkProfile {
 
   static async build(filename: string = `${__dirname}/default.rt4`) {
     const bytes = await readFileBinary(filename);
-    return RetroTinkProfile._build(bytes);
+    return RetroTinkProfile.fromBytes(bytes);
   }
 
   static buildSync(filename: string = `${__dirname}/default.rt4`) {
     const bytes = readFileBinarySync(filename);
-    return RetroTinkProfile._build(bytes);
+    return RetroTinkProfile.fromBytes(bytes);
   }
 
   getValues(): RetroTinkSettingsValues {
