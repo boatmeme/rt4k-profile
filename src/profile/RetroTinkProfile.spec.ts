@@ -4,11 +4,11 @@ import {
   SettingNotSupportedError,
 } from '../exceptions/RetroTinkProfileException';
 import { RetroTinkSetting, RetroTinkSettingValue } from '../settings/RetroTinkSetting';
-import { RetroTinkProfile } from './RetroTinkProfile';
+import RetroTinkProfile from './RetroTinkProfile';
 //import { RetroTinkSettingValue } from '../settings/RetroTinkSetting';
 
 describe('RetroTinkProfile', () => {
-  describe('builder', () => {
+  describe('build()', () => {
     test('should build a Profile using the default profile', async () => {
       const profile = await RetroTinkProfile.build();
       expect(profile).toBeInstanceOf(RetroTinkProfile);
@@ -20,6 +20,22 @@ describe('RetroTinkProfile', () => {
     });
     test('should throw an error with a bad path', async () => {
       await expect(RetroTinkProfile.build(`${__dirname}/__fixtures__/not-exists.rt4`)).rejects.toThrow(
+        ProfileNotFoundError,
+      );
+    });
+  });
+  describe('buildSync()', () => {
+    test('should build a Profile using the default profile', () => {
+      const profile = RetroTinkProfile.buildSync();
+      expect(profile).toBeInstanceOf(RetroTinkProfile);
+    });
+    test('should throw an error with an invalid file', async () => {
+      expect(() => RetroTinkProfile.buildSync(`${__dirname}/__fixtures__/not-a-valid-profile.rt4`)).toThrow(
+        InvalidProfileFormatError,
+      );
+    });
+    test('should throw an error with a bad path', async () => {
+      expect(() => RetroTinkProfile.buildSync(`${__dirname}/__fixtures__/not-exists.rt4`)).toThrow(
         ProfileNotFoundError,
       );
     });
@@ -59,7 +75,7 @@ describe('RetroTinkProfile', () => {
       let settings = profile.getValues();
       let strength = settings.get('advanced.effects.mask.strength');
       expect(strength?.asInt()).toEqual(0);
-      strength?.fromInt(-6);
+      strength.set(-6);
       profile.setValues(settings);
       settings = profile.getValues();
       strength = settings.get('advanced.effects.mask.strength');
@@ -73,7 +89,7 @@ describe('RetroTinkProfile', () => {
       let strength = settings.get('advanced.effects.mask.strength');
       expect(strength).toBeDefined();
       expect(strength.asInt()).toEqual(0);
-      strength.fromInt(-6);
+      strength.set(-6);
       profile.setValue(strength);
       settings = profile.getValues();
       strength = settings.get('advanced.effects.mask.strength');
