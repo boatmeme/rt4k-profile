@@ -40,6 +40,23 @@ describe('RetroTinkProfile', () => {
       );
     });
   });
+  describe('getSettingsNames', () => {
+    test('should return the names of all settings', async () => {
+      const profile = await RetroTinkProfile.build();
+      const settings = profile.getSettingsNames();
+      expect(settings).toBeInstanceOf(Array);
+    });
+  });
+  describe.skip('serialize', () => {
+    test('should serialize a profile settings into an object literal', async () => {
+      const profile = await RetroTinkProfile.build();
+      profile.setValue('advanced.effects.mask.enabled', 1);
+      profile.setValue('advanced.effects.mask.strength', -4);
+      const settings = profile.serialize();
+      console.log(JSON.stringify(settings, null, 2));
+      expect(settings).toBeInstanceOf(Object);
+    });
+  });
   describe('getValues', () => {
     test('should return the defaults', async () => {
       const profile = await RetroTinkProfile.build();

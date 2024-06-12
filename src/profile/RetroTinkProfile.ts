@@ -7,6 +7,7 @@ import {
   RetroTinkSettingsValues,
 } from '../settings/RetroTinkSetting';
 import { InvalidProfileFormatError, SettingNotSupportedError } from '../exceptions/RetroTinkProfileException';
+import { RetroTinkSettingsValuesSerialized, serializeSettings } from '../utils/SerializationUtils';
 
 export default class RetroTinkProfile {
   private _bytes: Uint8Array;
@@ -65,6 +66,10 @@ export default class RetroTinkProfile {
     return RetroTinkProfile.fromBytes(bytes);
   }
 
+  getSettingsNames(): string[] {
+    return Array.from(RetroTinkProfile._settings).map(([, s]) => s.name);
+  }
+
   getValues(): RetroTinkSettingsValues {
     return new RetroTinkSettingsValues(
       Array.from(
@@ -113,5 +118,9 @@ export default class RetroTinkProfile {
     } else if (a instanceof RetroTinkSettingValue) {
       return this._setValueWithInstance(a);
     }
+  }
+
+  serialize(): RetroTinkSettingsValuesSerialized {
+    return serializeSettings(this.getValues());
   }
 }
