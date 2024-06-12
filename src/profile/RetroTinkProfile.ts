@@ -1,4 +1,4 @@
-import { readFileBinary } from '../utils/FileUtils';
+import { readFileBinary, readFileBinarySync } from '../utils/FileUtils';
 import { DataType } from '../settings/DataType';
 import {
   RetroTinkSetting,
@@ -45,8 +45,7 @@ export default class RetroTinkProfile {
     this._bytes = bytes;
   }
 
-  static async build(filename: string = `${__dirname}/default.rt4`) {
-    const bytes = await readFileBinary(filename);
+  private static _build(bytes: Uint8Array) {
     const header = this._settings.get('header');
     const headerValue = new RetroTinkSettingValue(
       header,
@@ -54,6 +53,16 @@ export default class RetroTinkProfile {
     ).asString();
     if (headerValue !== 'RT4K Profile') throw new InvalidProfileFormatError(`Header is invalid: ${headerValue}`);
     return new RetroTinkProfile(bytes);
+  }
+
+  static async build(filename: string = `${__dirname}/default.rt4`) {
+    const bytes = await readFileBinary(filename);
+    return RetroTinkProfile._build(bytes);
+  }
+
+  static buildSync(filename: string = `${__dirname}/default.rt4`) {
+    const bytes = readFileBinarySync(filename);
+    return RetroTinkProfile._build(bytes);
   }
 
   getValues(): RetroTinkSettingsValues {
