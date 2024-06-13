@@ -31,7 +31,7 @@ export class SettingTypeError extends RetroTinkProfileError {
     settingKey: string,
     expected: DataType,
     val: unknown,
-    message = `Wrong Type for Setting '${settingKey}' (received: ${typeof val}, expected: ${expected})`,
+    message = `Wrong Type for Setting '${settingKey}' (expected: ${expected}, received: ${typeof val})`,
   ) {
     super(message);
   }

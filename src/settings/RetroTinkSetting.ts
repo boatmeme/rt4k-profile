@@ -58,7 +58,12 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
 
   asString(): string {
     if (this.value[0] == 0) return '';
-    return String.fromCharCode(...this.value);
+    return String.fromCharCode(...this.value.filter((n) => n));
+  }
+
+  asBoolean(): boolean {
+    if (this.value[0] == 0) return false;
+    return true;
   }
 
   asInt(): number {
@@ -72,10 +77,12 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
     throw Error('Not Implemented Yet');
   }
 
-  set(val: string | number) {
+  set(val: string | number | boolean) {
     if (typeof val === 'string') {
       switch (this.type) {
         case DataType.STR:
+          return this.fromString(val);
+        case DataType.BIT:
           return this.fromString(val);
         case DataType.INT: {
           const v = parseInt(val, 10);
@@ -96,8 +103,23 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
           return this.fromInt(val);
         case DataType.SIGNED_INT:
           return this.fromInt(val);
+        case DataType.BIT:
+          return this.fromInt(val);
         case DataType.STR:
           return this.fromString(`${val}`);
+        default:
+          throw new SettingTypeError(this.name, this.type, val);
+      }
+    } else if (typeof val === 'boolean') {
+      switch (this.type) {
+        case DataType.INT:
+          return this.fromInt(val ? 1 : 0);
+        case DataType.SIGNED_INT:
+          return this.fromInt(val ? 1 : 0);
+        case DataType.STR:
+          return this.fromString(`${val}`);
+        case DataType.BIT:
+          return this.fromBool(val);
         default:
           throw new SettingTypeError(this.name, this.type, val);
       }
@@ -106,13 +128,27 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
   }
 
   private fromString(str: string): void {
-    const strLen = str.length;
     this.value = new Uint8Array(this.length);
-    for (let i = 0; i < strLen && i < this.length; i++) {
-      this.value[i] = str.charCodeAt(i);
-    }
-    if (strLen < this.length) {
-      this.value[strLen] = 0; // null-terminate if there's space
+    if (this.type == DataType.BIT) {
+      if (this.length == 1) {
+        if (str == 'true') {
+          this.value[0] = 1;
+        } else if (str == 'false') {
+          this.value[0] = 0;
+        } else {
+          throw new SettingValidationError(this.name, str, `Cannot represent value (${str}) as a bit`);
+        }
+      } else {
+        throw new SettingValidationError(this.name, str, `Length (${this.length}) greater than 1`);
+      }
+    } else {
+      const strLen = str.length;
+      for (let i = 0; i < strLen && i < this.length; i++) {
+        this.value[i] = str.charCodeAt(i);
+      }
+      if (strLen < this.length) {
+        this.value[strLen] = 0; // null-terminate if there's space
+      }
     }
   }
 
@@ -123,13 +159,23 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
         if (num < -128 || num > 127)
           throw new SettingValidationError(this.name, num, 'Value out of range for signed 8-bit integer');
         this.value[0] = num < 0 ? 256 + num : num;
+      } else if (this.type == DataType.BIT) {
+        if (num < 0 || num > 1) throw new SettingValidationError(this.name, num, 'Value out of range for bit');
+        this.value[0] = num;
       } else {
         if (num < 0 || num > 255)
-          throw new SettingValidationError(this.name, num, 'Value out of range for signed 8-bit integer');
+          throw new SettingValidationError(this.name, num, 'Value out of range for 8-bit integer');
         this.value[0] = num;
       }
     } else {
       throw Error('Not Implemented Yet');
+    }
+  }
+
+  private fromBool(bool: boolean): void {
+    this.value = new Uint8Array(this.length);
+    if (this.length > 0) {
+      this.value[0] = bool ? 1 : 0;
     }
   }
 }

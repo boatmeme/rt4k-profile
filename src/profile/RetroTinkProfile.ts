@@ -24,7 +24,7 @@ export default class RetroTinkProfile {
       desc: 'Advanced -> Processing -> Mask -> Enabled',
       address: 0x008c,
       length: 1,
-      type: DataType.INT,
+      type: DataType.BIT,
     }),
     new RetroTinkSetting({
       name: 'advanced.effects.mask.strength',
@@ -103,7 +103,7 @@ export default class RetroTinkProfile {
     this._bytes = new Uint8Array(byte_array);
   }
 
-  private _setValueWithPrimitive(settingsKey: string, val: string | number): void {
+  private _setValueWithPrimitive(settingsKey: string, val: string | number | boolean): void {
     if (!RetroTinkProfile._settings.has(settingsKey)) throw new SettingNotSupportedError(settingsKey);
     const setting = this.getValue(settingsKey);
     setting.set(val);
@@ -111,9 +111,9 @@ export default class RetroTinkProfile {
   }
 
   setValue(setting: RetroTinkSettingValue): void;
-  setValue(a: string, b: string | number): void;
-  setValue(a: unknown, b?: string | number): void {
-    if (typeof a === 'string' && (typeof b === 'number' || typeof b === 'string')) {
+  setValue(a: string, b: string | number | boolean): void;
+  setValue(a: unknown, b?: string | number | boolean): void {
+    if (typeof a === 'string' && (typeof b === 'number' || typeof b === 'string' || typeof b === 'boolean')) {
       return this._setValueWithPrimitive(a, b);
     } else if (a instanceof RetroTinkSettingValue) {
       return this._setValueWithInstance(a);
