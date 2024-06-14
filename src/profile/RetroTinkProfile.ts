@@ -6,7 +6,11 @@ import {
   RetroTinkSettings,
   RetroTinkSettingsValues,
 } from '../settings/RetroTinkSetting';
-import { InvalidProfileFormatError, SettingNotSupportedError } from '../exceptions/RetroTinkProfileException';
+import {
+  InvalidProfileFormatError,
+  SettingDeserializationError,
+  SettingNotSupportedError,
+} from '../exceptions/RetroTinkProfileException';
 
 type RetroTinkSettingsValuesPlainObject = {
   [key: string]: string | number | boolean | RetroTinkSettingsValuesPlainObject;
@@ -163,7 +167,27 @@ export default class RetroTinkProfile {
     return pojo;
   }
 
-  asJson(pretty: boolean = false): string {
+  serializeValues(pretty: boolean = false): string {
     return JSON.stringify(this.asPlainObject(), null, pretty ? 2 : 0);
+  }
+
+  deserializeValues(json: string): void {
+    const addValueToSettings = (obj: unknown, parentKey: string = '') => {
+      Object.keys(obj).forEach((key) => {
+        const fullKey = parentKey ? `${parentKey}.${key}` : key;
+        const value = obj[key];
+        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+          addValueToSettings(value, fullKey);
+        } else {
+          this.setValue(fullKey, value);
+        }
+      });
+    };
+    try {
+      const parsedObject = JSON.parse(json);
+      addValueToSettings(parsedObject);
+    } catch (err) {
+      throw new SettingDeserializationError(err);
+    }
   }
 }

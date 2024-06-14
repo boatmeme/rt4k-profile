@@ -1,11 +1,12 @@
 import {
   InvalidProfileFormatError,
   ProfileNotFoundError,
+  SettingDeserializationError,
   SettingNotSupportedError,
 } from '../exceptions/RetroTinkProfileException';
-import { RetroTinkSetting, RetroTinkSettingValue } from '../settings/RetroTinkSetting';
+import { RetroTinkSetting, RetroTinkSettingValue, RetroTinkSettingsValues } from '../settings/RetroTinkSetting';
 import RetroTinkProfile from './RetroTinkProfile';
-import { pretty_json_str, unpretty_json_str } from './__fixtures__/json_profiles';
+import { bad_setting_json_str, invalid_json, pretty_json_str, unpretty_json_str } from './__fixtures__/json_profiles';
 
 describe('RetroTinkProfile', () => {
   describe('build()', () => {
@@ -47,13 +48,13 @@ describe('RetroTinkProfile', () => {
       expect(settings).toBeInstanceOf(Array);
     });
   });
-  describe('asJson', () => {
+  describe('serializeValues', () => {
     test('should convert profile settings into Json (pretty = false)', async () => {
       const profile = await RetroTinkProfile.build();
       profile.setValue('advanced.effects.mask.enabled', 1);
       profile.setValue('advanced.effects.mask.strength', -4);
       profile.setValue('advanced.effects.mask.path', 'Mono Masks/A Grille Medium Mono.bmp');
-      const settings = profile.asJson();
+      const settings = profile.serializeValues();
       expect(typeof settings).toBe('string');
       expect(settings).toBe(unpretty_json_str);
     });
@@ -62,9 +63,29 @@ describe('RetroTinkProfile', () => {
       profile.setValue('advanced.effects.mask.enabled', 1);
       profile.setValue('advanced.effects.mask.strength', -4);
       profile.setValue('advanced.effects.mask.path', 'Mono Masks/A Grille Medium Mono.bmp');
-      const settings = profile.asJson(true);
+      const settings = profile.serializeValues(true);
       expect(typeof settings).toBe('string');
       expect(settings).toBe(pretty_json_str);
+    });
+  });
+  describe('deserializeValues', () => {
+    test('should convert profile settings into Json (pretty = false)', async () => {
+      const profile = await RetroTinkProfile.build();
+      profile.deserializeValues(pretty_json_str);
+      const settings = profile.getValues();
+      expect(settings).toBeInstanceOf(RetroTinkSettingsValues);
+      expect(settings.get('header')?.asString()).toEqual('RT4K Profile');
+      expect(settings.get('advanced.effects.mask.enabled')?.asInt()).toEqual(1);
+      expect(settings.get('advanced.effects.mask.strength')?.asInt()).toEqual(-4);
+      expect(settings.get('advanced.effects.mask.path')?.asString()).toEqual('Mono Masks/A Grille Medium Mono.bmp');
+    });
+    test('should throw error for invalid json', async () => {
+      const profile = await RetroTinkProfile.build();
+      expect(() => profile.deserializeValues(invalid_json)).toThrow(SettingDeserializationError);
+    });
+    test('should throw error for invalid setting', async () => {
+      const profile = await RetroTinkProfile.build();
+      expect(() => profile.deserializeValues(bad_setting_json_str)).toThrow(SettingDeserializationError);
     });
   });
   describe('getValues', () => {

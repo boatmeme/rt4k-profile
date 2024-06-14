@@ -42,3 +42,9 @@ export class SettingValidationError extends RetroTinkProfileError {
     super(`(${settingKey}) failed validation with (${val}) (${message})`);
   }
 }
+
+export class SettingDeserializationError extends RetroTinkProfileError {
+  constructor(message = 'Failed to deserialize values') {
+    super(message);
+  }
+}
