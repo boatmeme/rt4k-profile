@@ -6,7 +6,15 @@ import {
   RetroTinkSettings,
   RetroTinkSettingsValues,
 } from '../settings/RetroTinkSetting';
-import { InvalidProfileFormatError, SettingNotSupportedError } from '../exceptions/RetroTinkProfileException';
+import {
+  InvalidProfileFormatError,
+  SettingDeserializationError,
+  SettingNotSupportedError,
+} from '../exceptions/RetroTinkProfileException';
+
+type RetroTinkSettingsValuesPlainObject = {
+  [key: string]: string | number | boolean | RetroTinkSettingsValuesPlainObject;
+};
 
 export default class RetroTinkProfile {
   private _bytes: Uint8Array;
@@ -23,7 +31,7 @@ export default class RetroTinkProfile {
       desc: 'Advanced -> Processing -> Mask -> Enabled',
       address: 0x008c,
       length: 1,
-      type: DataType.INT,
+      type: DataType.BIT,
     }),
     new RetroTinkSetting({
       name: 'advanced.effects.mask.strength',
@@ -65,6 +73,10 @@ export default class RetroTinkProfile {
     return RetroTinkProfile.fromBytes(bytes);
   }
 
+  getSettingsNames(): string[] {
+    return Array.from(RetroTinkProfile._settings).map(([, s]) => s.name);
+  }
+
   getValues(): RetroTinkSettingsValues {
     return new RetroTinkSettingsValues(
       Array.from(
@@ -98,7 +110,7 @@ export default class RetroTinkProfile {
     this._bytes = new Uint8Array(byte_array);
   }
 
-  private _setValueWithPrimitive(settingsKey: string, val: string | number): void {
+  private _setValueWithPrimitive(settingsKey: string, val: string | number | boolean): void {
     if (!RetroTinkProfile._settings.has(settingsKey)) throw new SettingNotSupportedError(settingsKey);
     const setting = this.getValue(settingsKey);
     setting.set(val);
@@ -106,12 +118,76 @@ export default class RetroTinkProfile {
   }
 
   setValue(setting: RetroTinkSettingValue): void;
-  setValue(a: string, b: string | number): void;
-  setValue(a: unknown, b?: string | number): void {
-    if (typeof a === 'string' && (typeof b === 'number' || typeof b === 'string')) {
+  setValue(a: string, b: string | number | boolean): void;
+  setValue(a: unknown, b?: string | number | boolean): void {
+    if (typeof a === 'string' && (typeof b === 'number' || typeof b === 'string' || typeof b === 'boolean')) {
       return this._setValueWithPrimitive(a, b);
     } else if (a instanceof RetroTinkSettingValue) {
       return this._setValueWithInstance(a);
+    }
+  }
+
+  private asPlainObject(): unknown {
+    const pojo: RetroTinkSettingsValuesPlainObject = {};
+
+    const addValueToObject = (
+      obj: RetroTinkSettingsValuesPlainObject,
+      keys: string[],
+      value: string | number | boolean,
+    ) => {
+      const key = keys[0];
+      if (keys.length === 1) {
+        obj[key] = value;
+      } else {
+        if (!obj[key]) {
+          obj[key] = {};
+        }
+        addValueToObject(obj[key] as RetroTinkSettingsValuesPlainObject, keys.slice(1), value);
+      }
+    };
+
+    Array.from(this.getValues()).forEach(([name, item]) => {
+      const keys = name.split('.');
+      let value: string | number | boolean;
+
+      switch (item.type) {
+        case DataType.STR:
+          value = item.asString();
+          break;
+        case DataType.BIT:
+          value = item.asBoolean();
+          break;
+        default:
+          value = item.asInt();
+      }
+
+      addValueToObject(pojo, keys, value);
+    });
+
+    return pojo;
+  }
+
+  serializeValues(pretty: boolean = false): string {
+    return JSON.stringify(this.asPlainObject(), null, pretty ? 2 : 0);
+  }
+
+  deserializeValues(json: string): void {
+    const addValueToSettings = (obj: unknown, parentKey: string = '') => {
+      Object.keys(obj).forEach((key) => {
+        const fullKey = parentKey ? `${parentKey}.${key}` : key;
+        const value = obj[key];
+        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+          addValueToSettings(value, fullKey);
+        } else {
+          this.setValue(fullKey, value);
+        }
+      });
+    };
+    try {
+      const parsedObject = JSON.parse(json);
+      addValueToSettings(parsedObject);
+    } catch (err) {
+      throw new SettingDeserializationError(err);
     }
   }
 }

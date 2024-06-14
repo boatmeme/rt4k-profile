@@ -31,7 +31,7 @@ export class SettingTypeError extends RetroTinkProfileError {
     settingKey: string,
     expected: DataType,
     val: unknown,
-    message = `Wrong Type for Setting '${settingKey}' (received: ${typeof val}, expected: ${expected})`,
+    message = `Wrong Type for Setting '${settingKey}' (expected: ${expected}, received: ${typeof val})`,
   ) {
     super(message);
   }
@@ -40,5 +40,11 @@ export class SettingTypeError extends RetroTinkProfileError {
 export class SettingValidationError extends RetroTinkProfileError {
   constructor(settingKey: string, val: unknown, message: string) {
     super(`(${settingKey}) failed validation with (${val}) (${message})`);
+  }
+}
+
+export class SettingDeserializationError extends RetroTinkProfileError {
+  constructor(message = 'Failed to deserialize values') {
+    super(message);
   }
 }
