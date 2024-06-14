@@ -5,7 +5,7 @@ import {
 } from '../exceptions/RetroTinkProfileException';
 import { RetroTinkSetting, RetroTinkSettingValue } from '../settings/RetroTinkSetting';
 import RetroTinkProfile from './RetroTinkProfile';
-//import { RetroTinkSettingValue } from '../settings/RetroTinkSetting';
+import { pretty_json_str, unpretty_json_str } from './__fixtures__/json_profiles';
 
 describe('RetroTinkProfile', () => {
   describe('build()', () => {
@@ -47,15 +47,24 @@ describe('RetroTinkProfile', () => {
       expect(settings).toBeInstanceOf(Array);
     });
   });
-  describe('serialize', () => {
-    test('should serialize a profile settings into an object literal', async () => {
+  describe('asJson', () => {
+    test('should convert profile settings into Json (pretty = false)', async () => {
       const profile = await RetroTinkProfile.build();
       profile.setValue('advanced.effects.mask.enabled', 1);
       profile.setValue('advanced.effects.mask.strength', -4);
       profile.setValue('advanced.effects.mask.path', 'Mono Masks/A Grille Medium Mono.bmp');
-      const settings = profile.serialize();
-      console.log(JSON.stringify(settings, null, 2));
-      expect(settings).toBeInstanceOf(Object);
+      const settings = profile.asJson();
+      expect(typeof settings).toBe('string');
+      expect(settings).toBe(unpretty_json_str);
+    });
+    test('should convert profile settings into Json (pretty = true)', async () => {
+      const profile = await RetroTinkProfile.build();
+      profile.setValue('advanced.effects.mask.enabled', 1);
+      profile.setValue('advanced.effects.mask.strength', -4);
+      profile.setValue('advanced.effects.mask.path', 'Mono Masks/A Grille Medium Mono.bmp');
+      const settings = profile.asJson(true);
+      expect(typeof settings).toBe('string');
+      expect(settings).toBe(pretty_json_str);
     });
   });
   describe('getValues', () => {
