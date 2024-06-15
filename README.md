@@ -7,6 +7,10 @@ A Typescript Library for Reading and Writing RetroTINK-4k .rt4 Profiles
 ## Why would I use this library?
 
 ---
+## Prerequisites
+
+- NodeJS >= 14.15
+ 
 ## Install
 
 ```
