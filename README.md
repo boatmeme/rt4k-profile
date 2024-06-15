@@ -1,4 +1,5 @@
 # rt4k-profile ૮₍ • ˕ - ₎ა
+[![codecov](https://codecov.io/github/boatmeme/rt4k-profile/graph/badge.svg?token=dbwq3YlYw2)](https://codecov.io/github/boatmeme/rt4k-profile)
 
 A Typescript Library for Reading and Writing RetroTINK-4k .rt4 Profiles
 
@@ -7,6 +8,10 @@ A Typescript Library for Reading and Writing RetroTINK-4k .rt4 Profiles
 ## Why would I use this library?
 
 ---
+## Prerequisites
+
+- NodeJS >= 14.15
+
 ## Install
 
 ```
