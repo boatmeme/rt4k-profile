@@ -1,8 +1,31 @@
 import { SettingTypeError, SettingValidationError } from '../exceptions/RetroTinkProfileException';
-import { RetroTinkSetting, RetroTinkSettingValue } from '../settings/RetroTinkSetting';
+import {
+  RetroTinkSetting,
+  RetroTinkSettingValue,
+  RetroTinkSettings,
+  RetroTinkSettingsValues,
+} from '../settings/RetroTinkSetting';
 import { DataType } from './DataType';
 
 describe('RetroTinkSetting', () => {
+  describe('RetroTinkSettingsValues', () => {
+    describe('constructor', () => {
+      it('should initialize as empty Map', () => {
+        const settings = new RetroTinkSettingsValues();
+        expect(settings.size).toBe(0);
+        expect(settings).toBeInstanceOf(Map);
+      });
+    });
+  });
+  describe('RetroTinkSettings', () => {
+    describe('constructor', () => {
+      it('should initialize as empty Map', () => {
+        const settings = new RetroTinkSettings();
+        expect(settings.size).toBe(0);
+        expect(settings).toBeInstanceOf(Map);
+      });
+    });
+  });
   describe('RetroTinkSettingValue', () => {
     describe('set', () => {
       describe('DataType.STR', () => {
@@ -47,6 +70,36 @@ describe('RetroTinkSetting', () => {
           expect(v.value).toEqual(new Uint8Array([116, 114, 117, 101, 0, 0, 0, 0, 0, 0, 0, 0]));
         });
 
+        test('should return boolean from asBoolean()', () => {
+          const s = new RetroTinkSetting({
+            name: 'some.retrotink.setting',
+            desc: 'Any Setting',
+            address: 0x0000,
+            length: 1,
+            type: DataType.STR,
+          });
+          const v = new RetroTinkSettingValue(s);
+          v.set('');
+          expect(v.asBoolean()).toBe(false);
+          v.set('something');
+          expect(v.asBoolean()).toBe(true);
+        });
+
+        test('should parse fromBoolean()', () => {
+          const s = new RetroTinkSetting({
+            name: 'some.retrotink.setting',
+            desc: 'Any Setting',
+            address: 0x0000,
+            length: 5,
+            type: DataType.STR,
+          });
+          const v = new RetroTinkSettingValue(s);
+          v.set(true);
+          expect(v.value).toEqual(new Uint8Array([116, 114, 117, 101, 0]));
+          v.set(false);
+          expect(v.value).toEqual(new Uint8Array([102, 97, 108, 115, 101]));
+        });
+
         test('should throw with unexpected type', () => {
           const s = new RetroTinkSetting({
             name: 'header',
@@ -86,6 +139,36 @@ describe('RetroTinkSetting', () => {
           expect(v.value.length).toEqual(1);
           expect(v.value).toEqual(new Uint8Array([255]));
         });
+
+        test('should return boolean from asBoolean()', () => {
+          const s = new RetroTinkSetting({
+            name: 'some.retrotink.setting',
+            desc: 'Any Setting',
+            address: 0x0000,
+            length: 1,
+            type: DataType.INT,
+          });
+          const v = new RetroTinkSettingValue(s);
+          v.set(0);
+          expect(v.asBoolean()).toBe(false);
+          v.set(1);
+          expect(v.asBoolean()).toBe(true);
+        });
+        test('should parse fromBoolean()', () => {
+          const s = new RetroTinkSetting({
+            name: 'some.retrotink.setting',
+            desc: 'Any Setting',
+            address: 0x0000,
+            length: 1,
+            type: DataType.INT,
+          });
+          const v = new RetroTinkSettingValue(s);
+          v.set(true);
+          expect(v.value).toEqual(new Uint8Array([1]));
+          v.set(false);
+          expect(v.value).toEqual(new Uint8Array([0]));
+        });
+
         test('should throw if type not implemented in asInt()', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
@@ -182,6 +265,20 @@ describe('RetroTinkSetting', () => {
           expect(v.value.length).toEqual(1);
           expect(v.value).toEqual(new Uint8Array([252]));
         });
+        test('should parse fromBoolean()', () => {
+          const s = new RetroTinkSetting({
+            name: 'some.retrotink.setting',
+            desc: 'Any Setting',
+            address: 0x0000,
+            length: 1,
+            type: DataType.SIGNED_INT,
+          });
+          const v = new RetroTinkSettingValue(s);
+          v.set(true);
+          expect(v.value).toEqual(new Uint8Array([1]));
+          v.set(false);
+          expect(v.value).toEqual(new Uint8Array([0]));
+        });
         test('should throw if out of range', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
@@ -262,6 +359,17 @@ describe('RetroTinkSetting', () => {
           expect(v.value.length).toEqual(1);
           expect(v.value).toEqual(new Uint8Array([1]));
         });
+        test('should throw for number out of range', () => {
+          const s = new RetroTinkSetting({
+            name: 'header',
+            desc: 'File Header',
+            address: 0x0000,
+            length: 1,
+            type: DataType.BIT,
+          });
+          const v = new RetroTinkSettingValue(s);
+          expect(() => v.set(2)).toThrow(SettingValidationError);
+        });
         test('should set with boolean', () => {
           const s = new RetroTinkSetting({
             name: 'header',
@@ -274,6 +382,23 @@ describe('RetroTinkSetting', () => {
           v.set(true);
           expect(v.value.length).toEqual(1);
           expect(v.value).toEqual(new Uint8Array([1]));
+          v.set(false);
+          expect(v.value.length).toEqual(1);
+          expect(v.value).toEqual(new Uint8Array([0]));
+        });
+        test('should return boolean from asBoolean()', () => {
+          const s = new RetroTinkSetting({
+            name: 'some.retrotink.setting',
+            desc: 'Any Setting',
+            address: 0x0000,
+            length: 1,
+            type: DataType.BIT,
+          });
+          const v = new RetroTinkSettingValue(s);
+          v.set(0);
+          expect(v.asBoolean()).toBe(false);
+          v.set(1);
+          expect(v.asBoolean()).toBe(true);
         });
         test('should throw with unexpected type', () => {
           const s = new RetroTinkSetting({
