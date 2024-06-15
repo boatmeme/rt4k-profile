@@ -74,7 +74,12 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
       }
       return this.value[0];
     }
-    throw Error('Not Implemented Yet');
+    throw new SettingTypeError(
+      this.name,
+      this.type,
+      this.value,
+      `asInt() Not Implemented Yet for '${this.name}', Length: ${this.length} (expected: ${this.type}, received: ${typeof this.value})`,
+    );
   }
 
   set(val: string | number | boolean) {
@@ -168,7 +173,12 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
         this.value[0] = num;
       }
     } else {
-      throw Error('Not Implemented Yet');
+      throw new SettingTypeError(
+        this.name,
+        this.type,
+        num,
+        `fromInt() Not Implemented Yet: for '${this.name}', Length: ${this.length} (expected: ${this.type}, received: ${typeof num})`,
+      );
     }
   }
 
