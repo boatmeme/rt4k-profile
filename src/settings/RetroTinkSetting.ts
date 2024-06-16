@@ -5,27 +5,34 @@ import {
 } from '../exceptions/RetroTinkProfileException';
 import { DataType } from './DataType';
 
+interface ByteRange {
+  address: number;
+  length: number;
+}
+
 interface RetroTinkSettingParams {
   name: string;
   desc: string;
-  address: number;
-  length: number;
+  byteRanges: ByteRange[];
+  //address: number;
+  //length: number;
   type: DataType;
 }
 
 export class RetroTinkSetting {
   name: string;
   desc: string;
-  address: number;
-  length: number;
+  byteRanges: ByteRange[];
   type: DataType;
 
   constructor(params: RetroTinkSettingParams) {
     this.name = params.name;
     this.desc = params.desc;
-    this.address = params.address;
-    this.length = params.length;
+    this.byteRanges = params.byteRanges;
     this.type = params.type;
+  }
+  length(): number {
+    return this.byteRanges.reduce((acc, r) => acc + r.length, 0);
   }
 }
 
@@ -46,12 +53,13 @@ export class RetroTinkSettingsValues extends RetroTinkBaseSettings<RetroTinkSett
 export class RetroTinkSettingValue extends RetroTinkSetting {
   name: string;
   desc: string;
-  address: number;
-  length: number;
+  byteRanges: ByteRange[];
+  //address: number;
+  //1length: number;
   type: DataType;
   value: Uint8Array;
 
-  constructor(params: RetroTinkSetting, value: Uint8Array = new Uint8Array(params.length)) {
+  constructor(params: RetroTinkSetting, value: Uint8Array = new Uint8Array(params.length())) {
     super(params);
     this.value = value;
   }
@@ -67,7 +75,8 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
   }
 
   asInt(): number {
-    if (this.length == 1) {
+    const length = this.length();
+    if (length == 1) {
       if (this.type == DataType.SIGNED_INT) {
         const unsignedInt = this.value[0] & 0xff;
         return unsignedInt & 0x80 ? unsignedInt - 256 : unsignedInt;
@@ -78,7 +87,7 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
       this.name,
       this.type,
       this.value,
-      `asInt() Not Implemented Yet for '${this.name}', Length: ${this.length} (expected: ${this.type}, received: ${typeof this.value})`,
+      `asInt() Not Implemented Yet for '${this.name}', Length: ${length} (expected: ${this.type}, received: ${typeof this.value})`,
     );
   }
 
@@ -133,9 +142,10 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
   }
 
   private fromString(str: string): void {
-    this.value = new Uint8Array(this.length);
+    const length = this.length();
+    this.value = new Uint8Array(length);
     if (this.type == DataType.BIT) {
-      if (this.length == 1) {
+      if (length == 1) {
         if (str == 'true') {
           this.value[0] = 1;
         } else if (str == 'false') {
@@ -144,22 +154,23 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
           throw new SettingValidationError(this.name, str, `Cannot represent value (${str}) as a bit`);
         }
       } else {
-        throw new SettingValidationError(this.name, str, `Length (${this.length}) greater than 1`);
+        throw new SettingValidationError(this.name, str, `Length (${length}) greater than 1`);
       }
     } else {
       const strLen = str.length;
-      for (let i = 0; i < strLen && i < this.length; i++) {
+      for (let i = 0; i < strLen && i < length; i++) {
         this.value[i] = str.charCodeAt(i);
       }
-      if (strLen < this.length) {
+      if (strLen < length) {
         this.value[strLen] = 0; // null-terminate if there's space
       }
     }
   }
 
   private fromInt(num: number): void {
-    this.value = new Uint8Array(this.length);
-    if (this.length == 1) {
+    const length = this.length();
+    this.value = new Uint8Array(length);
+    if (length == 1) {
       if (this.type == DataType.SIGNED_INT) {
         if (num < -128 || num > 127)
           throw new SettingValidationError(this.name, num, 'Value out of range for signed 8-bit integer');
@@ -177,14 +188,15 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
         this.name,
         this.type,
         num,
-        `fromInt() Not Implemented Yet: for '${this.name}', Length: ${this.length} (expected: ${this.type}, received: ${typeof num})`,
+        `fromInt() Not Implemented Yet: for '${this.name}', Length: ${length} (expected: ${this.type}, received: ${typeof num})`,
       );
     }
   }
 
   private fromBool(bool: boolean): void {
-    this.value = new Uint8Array(this.length);
-    if (this.length > 0) {
+    const length = this.length();
+    this.value = new Uint8Array(length);
+    if (length > 0) {
       this.value[0] = bool ? 1 : 0;
     }
   }

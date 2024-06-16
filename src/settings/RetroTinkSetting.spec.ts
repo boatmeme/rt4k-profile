@@ -33,8 +33,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 12,
+            byteRanges: [{ address: 0x0000, length: 12 }],
             type: DataType.STR,
           });
           const v = new RetroTinkSettingValue(s);
@@ -46,8 +45,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'header',
             desc: 'File Header',
-            address: 0x0000,
-            length: 12,
+            byteRanges: [{ address: 0x0000, length: 12 }],
             type: DataType.STR,
           });
           const v = new RetroTinkSettingValue(s);
@@ -60,8 +58,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'header',
             desc: 'File Header',
-            address: 0x0000,
-            length: 12,
+            byteRanges: [{ address: 0x0000, length: 12 }],
             type: DataType.STR,
           });
           const v = new RetroTinkSettingValue(s);
@@ -74,8 +71,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.STR,
           });
           const v = new RetroTinkSettingValue(s);
@@ -89,8 +85,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 5,
+            byteRanges: [{ address: 0x0000, length: 5 }],
             type: DataType.STR,
           });
           const v = new RetroTinkSettingValue(s);
@@ -104,8 +99,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'header',
             desc: 'File Header',
-            address: 0x0000,
-            length: 12,
+            byteRanges: [{ address: 0x0000, length: 12 }],
             type: DataType.STR,
           });
           const v = new RetroTinkSettingValue(s);
@@ -117,8 +111,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.INT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -130,8 +123,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.INT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -144,8 +136,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.INT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -158,8 +149,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.INT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -173,8 +163,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 8,
+            byteRanges: [{ address: 0x0000, length: 8 }],
             type: DataType.INT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -184,8 +173,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 8,
+            byteRanges: [{ address: 0x0000, length: 8 }],
             type: DataType.INT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -195,8 +183,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.INT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -206,8 +193,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.INT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -219,8 +205,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.INT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -230,8 +215,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.INT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -243,8 +227,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.SIGNED_INT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -256,8 +239,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.SIGNED_INT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -269,8 +251,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.SIGNED_INT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -283,8 +264,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.SIGNED_INT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -294,8 +274,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.SIGNED_INT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -307,8 +286,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.SIGNED_INT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -318,8 +296,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.SIGNED_INT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -331,8 +308,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.BIT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -343,15 +319,14 @@ describe('RetroTinkSetting', () => {
           expect(v.value.length).toEqual(1);
           expect(v.value).toEqual(new Uint8Array([0]));
           expect(() => v.set('bunko')).toThrow(SettingValidationError);
-          v.length = 2;
+          v.byteRanges[0].length = 2;
           expect(() => v.set('true')).toThrow(SettingValidationError);
         });
         test('should set with number', () => {
           const s = new RetroTinkSetting({
             name: 'header',
             desc: 'File Header',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.BIT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -363,8 +338,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'header',
             desc: 'File Header',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.BIT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -374,8 +348,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'header',
             desc: 'File Header',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.BIT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -390,8 +363,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'some.retrotink.setting',
             desc: 'Any Setting',
-            address: 0x0000,
-            length: 1,
+            byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.BIT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -404,8 +376,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'header',
             desc: 'File Header',
-            address: 0x0000,
-            length: 12,
+            byteRanges: [{ address: 0x0000, length: 12 }],
             type: DataType.BIT,
           });
           const v = new RetroTinkSettingValue(s);
@@ -417,8 +388,7 @@ describe('RetroTinkSetting', () => {
           const s = new RetroTinkSetting({
             name: 'header',
             desc: 'File Header',
-            address: 0x0000,
-            length: 12,
+            byteRanges: [{ address: 0x0000, length: 12 }],
             type: 'DOES_NOT_EXIST' as DataType,
           });
           const v = new RetroTinkSettingValue(s);
