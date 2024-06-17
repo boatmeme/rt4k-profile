@@ -318,8 +318,17 @@ describe('RetroTinkSetting', () => {
           v.set('false');
           expect(v.value.length).toEqual(1);
           expect(v.value).toEqual(new Uint8Array([0]));
+        });
+        test('should throw with invalid string', () => {
+          const s = new RetroTinkSetting({
+            name: 'some.retrotink.setting',
+            desc: 'Any Setting',
+            byteRanges: [{ address: 0x0000, length: 1 }],
+            type: DataType.BIT,
+          });
+          const v = new RetroTinkSettingValue(s);
           expect(() => v.set('bunko')).toThrow(SettingValidationError);
-          v.byteRanges[0].length = 2;
+          s.byteRanges[0].length = 2;
           expect(() => v.set('true')).toThrow(SettingValidationError);
         });
         test('should set with number', () => {
