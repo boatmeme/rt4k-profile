@@ -27,6 +27,20 @@ describe('RetroTinkSetting', () => {
     });
   });
   describe('RetroTinkSettingValue', () => {
+    describe('compareUint8Array', () => {
+      test('equals', () => {
+        const comparison = RetroTinkSettingValue.compareUint8Array(new Uint8Array([1]), new Uint8Array([1]));
+        expect(comparison).toBe(true);
+      });
+      test('not equal (same length)', () => {
+        const comparison = RetroTinkSettingValue.compareUint8Array(new Uint8Array([1]), new Uint8Array([2]));
+        expect(comparison).toBe(false);
+      });
+      test('not equal (different length)', () => {
+        const comparison = RetroTinkSettingValue.compareUint8Array(new Uint8Array([1]), new Uint8Array([2, 3]));
+        expect(comparison).toBe(false);
+      });
+    });
     describe('set', () => {
       describe('DataType.STR', () => {
         test('should set with string', () => {
