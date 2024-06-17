@@ -14,9 +14,13 @@ interface RetroTinkSettingParams {
   name: string;
   desc: string;
   byteRanges: ByteRange[];
-  //address: number;
-  //length: number;
   type: DataType;
+  enums?: RetroTinkEnumValue[];
+}
+
+interface RetroTinkEnumValue {
+  name: string;
+  value: Uint8Array;
 }
 
 export class RetroTinkSetting {
@@ -24,12 +28,14 @@ export class RetroTinkSetting {
   desc: string;
   byteRanges: ByteRange[];
   type: DataType;
+  enums?: RetroTinkEnumValue[];
 
   constructor(params: RetroTinkSettingParams) {
     this.name = params.name;
     this.desc = params.desc;
     this.byteRanges = params.byteRanges;
     this.type = params.type;
+    this.enums = params.enums;
   }
   length(): number {
     return this.byteRanges.reduce((acc, r) => acc + r.length, 0);
@@ -54,8 +60,6 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
   name: string;
   desc: string;
   byteRanges: ByteRange[];
-  //address: number;
-  //1length: number;
   type: DataType;
   value: Uint8Array;
 
@@ -64,9 +68,30 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
     this.value = value;
   }
 
+  static compareUint8Array(a: Uint8Array, b: Uint8Array) {
+    if (a.length !== b.length) {
+      return false;
+    }
+
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   asString(): string {
-    if (this.value[0] == 0) return '';
-    return String.fromCharCode(...this.value.filter((n) => n));
+    switch (this.type) {
+      case DataType.ENUM: {
+        const enumVal = this.enums?.find((e) => RetroTinkSettingValue.compareUint8Array(e.value, this.value));
+        return enumVal.name;
+      }
+      default:
+        if (this.value[0] == 0) return '';
+        return String.fromCharCode(...this.value.filter((n) => n));
+    }
   }
 
   asBoolean(): boolean {
@@ -108,6 +133,8 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
           if (isNaN(v)) throw new SettingTypeError(this.name, this.type, val);
           return this.fromInt(v);
         }
+        case DataType.ENUM:
+          return this.fromString(val);
         default:
           throw new SettingTypeError(this.name, this.type, val);
       }
@@ -121,6 +148,8 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
           return this.fromInt(val);
         case DataType.STR:
           return this.fromString(`${val}`);
+        case DataType.ENUM:
+          return this.fromInt(val);
         default:
           throw new SettingTypeError(this.name, this.type, val);
       }
@@ -156,6 +185,14 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
       } else {
         throw new SettingValidationError(this.name, str, `Length (${length}) greater than 1`);
       }
+    } else if (this.type == DataType.ENUM) {
+      const lowerString = str.toLowerCase();
+      const enumValue = this.enums?.find((e) => e.name.toLowerCase() == lowerString);
+      if (!enumValue) {
+        const validStrArr = this.enums.map((e) => `'${e.name}'`);
+        throw new SettingValidationError(this.name, str, `Must be one of: ${validStrArr.join(', ')}`);
+      }
+      this.value = enumValue.value;
     } else {
       const strLen = str.length;
       for (let i = 0; i < strLen && i < length; i++) {
@@ -170,7 +207,12 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
   private fromInt(num: number): void {
     const length = this.length();
     this.value = new Uint8Array(length);
-    if (length == 1) {
+    if (this.type == DataType.ENUM) {
+      if (num >= this.enums.length || num < 0) {
+        throw new SettingValidationError(this.name, num, 'No Enum Found with that Index');
+      }
+      this.value = this.enums[num].value;
+    } else if (length == 1) {
       if (this.type == DataType.SIGNED_INT) {
         if (num < -128 || num > 127)
           throw new SettingValidationError(this.name, num, 'Value out of range for signed 8-bit integer');

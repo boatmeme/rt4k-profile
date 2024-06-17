@@ -383,6 +383,51 @@ describe('RetroTinkSetting', () => {
           expect(() => v.set([123456789] as unknown as string)).toThrow(SettingTypeError);
         });
       });
+      describe('DataType.ENUM', () => {
+        const s = new RetroTinkSetting({
+          name: 'some.retrotink.setting',
+          desc: 'Some value from a set of predefined choices',
+          byteRanges: [{ address: 0x0000, length: 1 }],
+          type: DataType.ENUM,
+          enums: [
+            { name: 'Choice 1', value: new Uint8Array([1]) },
+            { name: 'Choice 2', value: new Uint8Array([2]) },
+            { name: 'Choice 3', value: new Uint8Array([3]) },
+          ],
+        });
+        test('should set with string, case insensitive', () => {
+          const v = new RetroTinkSettingValue(s);
+          const choice = 'Choice 2';
+          v.set(choice.toLowerCase());
+          expect(v.value.length).toEqual(1);
+          expect(v.value).toEqual(new Uint8Array([2]));
+          v.set(choice.toUpperCase());
+          expect(v.value.length).toEqual(1);
+          expect(v.value).toEqual(new Uint8Array([2]));
+        });
+        test('should throw with an invalid string', () => {
+          const v = new RetroTinkSettingValue(s);
+          expect(() => v.set('an invalid string')).toThrow(SettingValidationError);
+        });
+
+        test('should set with number', () => {
+          const v = new RetroTinkSettingValue(s);
+          v.set(2);
+          expect(v.value.length).toEqual(1);
+          expect(v.value).toEqual(new Uint8Array([3]));
+        });
+
+        test('should throw with invalid number', () => {
+          const v = new RetroTinkSettingValue(s);
+          expect(() => v.set(-1)).toThrow(SettingValidationError);
+          expect(() => v.set(3)).toThrow(SettingValidationError);
+        });
+
+        test('should throw with unexpected type', () => {
+          const v = new RetroTinkSettingValue(s);
+          expect(() => v.set([123456789] as unknown as boolean)).toThrow(SettingTypeError);
+        });
+      });
       describe('DataType.DOES_NOT_EXIST', () => {
         test('should throw with unexpected type', () => {
           const s = new RetroTinkSetting({

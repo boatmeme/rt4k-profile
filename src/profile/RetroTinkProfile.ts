@@ -43,6 +43,22 @@ export default class RetroTinkProfile {
       byteRanges: [{ address: 0x0090, length: 256 }],
       type: DataType.STR,
     }),
+    new RetroTinkSetting({
+      name: 'input',
+      desc: 'Input',
+      byteRanges: [
+        { address: 0x0368, length: 1 },
+        { address: 0x5869, length: 1 },
+      ],
+      type: DataType.ENUM,
+      enums: [
+        { name: 'HDMI', value: new Uint8Array([5, 0]) },
+        { name: 'Front/Composite', value: new Uint8Array([3, 3]) },
+        { name: 'Front/S-Video', value: new Uint8Array([3, 4]) },
+        { name: 'RCA/YPbPr', value: new Uint8Array([0, 7]) },
+        { name: 'RCA/RGsB', value: new Uint8Array([0, 8]) },
+      ],
+    }),
   ]);
 
   private constructor(bytes: Uint8Array) {
@@ -162,6 +178,9 @@ export default class RetroTinkProfile {
 
       switch (item.type) {
         case DataType.STR:
+          value = item.asString();
+          break;
+        case DataType.ENUM:
           value = item.asString();
           break;
         case DataType.BIT:
