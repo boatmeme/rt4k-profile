@@ -459,6 +459,19 @@ describe('RetroTinkSetting', () => {
         test('should throw with bad bytes', () => {
           expect(() => new RetroTinkSettingValue(s, new Uint8Array([4]))).toThrow(SettingValidationError);
         });
+        test('should throw when constructing a DataType.ENUM with non-unique values', () =>{
+          expect(() => new RetroTinkSetting({
+            name: 'some.retrotink.setting',
+            desc: 'Some value from a set of predefined choices',
+            byteRanges: [{ address: 0x0000, length: 1 }],
+            type: DataType.ENUM,
+            enums: [
+              { name: 'Choice 1', value: new Uint8Array([1]) },
+              { name: 'Choice 2', value: new Uint8Array([2]) },
+              { name: 'Duplicate Value', value: new Uint8Array([2]) },
+            ],
+          })).toThrow(SettingTypeError);
+        })
       });
       describe('DataType.DOES_NOT_EXIST', () => {
         test('should throw with unexpected type', () => {
