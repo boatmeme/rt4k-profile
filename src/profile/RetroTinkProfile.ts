@@ -133,7 +133,11 @@ export default class RetroTinkProfile {
     for (const setting of settings.values()) {
       let offset = 0;
       for (const byteRange of setting.byteRanges) {
-        byte_array.splice(byteRange.address, byteRange.length, ...setting.value.slice(offset, byteRange.length));
+        byte_array.splice(
+          byteRange.address,
+          byteRange.length,
+          ...setting.value.slice(offset, offset + byteRange.length),
+        );
         offset += byteRange.length;
       }
     }
@@ -145,7 +149,7 @@ export default class RetroTinkProfile {
     const byte_array = Array.from(this._bytes);
     let offset = 0;
     for (const byteRange of setting.byteRanges) {
-      byte_array.splice(byteRange.address, byteRange.length, ...setting.value.slice(offset, byteRange.length));
+      byte_array.splice(byteRange.address, byteRange.length, ...setting.value.slice(offset, offset + byteRange.length));
       offset += byteRange.length;
     }
     this._bytes = new Uint8Array(byte_array);

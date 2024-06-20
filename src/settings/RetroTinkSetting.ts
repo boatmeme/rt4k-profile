@@ -57,15 +57,31 @@ export class RetroTinkSettings extends RetroTinkBaseSettings<RetroTinkSetting> {
 export class RetroTinkSettingsValues extends RetroTinkBaseSettings<RetroTinkSettingValue> {}
 
 export class RetroTinkSettingValue extends RetroTinkSetting {
-  name: string;
-  desc: string;
-  byteRanges: ByteRange[];
-  type: DataType;
   value: Uint8Array;
 
-  constructor(params: RetroTinkSetting, value: Uint8Array = new Uint8Array(params.length())) {
+  constructor(params: RetroTinkSetting, value?: Uint8Array) {
     super(params);
-    this.value = value;
+    if (!value) {
+      this.value = new Uint8Array(params.length());
+    } else {
+      this.value = value;
+      this.validate();
+    }
+  }
+
+  private validate(): boolean {
+    switch (this.type) {
+      case DataType.ENUM: {
+        const enumVal = this.enums?.find((e) => RetroTinkSettingValue.compareUint8Array(e.value, this.value));
+        if (enumVal) return true;
+        const errDesc = this.byteRanges
+          .reduce((str, r) => [...str, `<addr: ${r.address}, len: ${r.length}>`], [] as string[])
+          .join(', ');
+        throw new SettingValidationError(this.name, this.value, `Invalid values @ bytes: ${errDesc}`);
+      }
+      default:
+        return true;
+    }
   }
 
   static compareUint8Array(a: Uint8Array, b: Uint8Array) {

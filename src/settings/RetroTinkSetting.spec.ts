@@ -440,6 +440,12 @@ describe('RetroTinkSetting', () => {
           expect(v.value).toEqual(new Uint8Array([3]));
         });
 
+        test('should set with bytes', () => {
+          const v = new RetroTinkSettingValue(s, new Uint8Array([2]));
+          expect(v.value.length).toEqual(1);
+          expect(v.value).toEqual(new Uint8Array([2]));
+        });
+
         test('should throw with invalid number', () => {
           const v = new RetroTinkSettingValue(s);
           expect(() => v.set(-1)).toThrow(SettingValidationError);
@@ -449,6 +455,9 @@ describe('RetroTinkSetting', () => {
         test('should throw with unexpected type', () => {
           const v = new RetroTinkSettingValue(s);
           expect(() => v.set([123456789] as unknown as boolean)).toThrow(SettingTypeError);
+        });
+        test('should throw with bad bytes', () => {
+          expect(() => new RetroTinkSettingValue(s, new Uint8Array([4]))).toThrow(SettingValidationError);
         });
       });
       describe('DataType.DOES_NOT_EXIST', () => {
