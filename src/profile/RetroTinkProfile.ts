@@ -74,6 +74,29 @@ export default class RetroTinkProfile {
         { name: 'HD-15|Y/C on G/R (Enh.)', value: new Uint8Array([1, 27]) },
       ],
     }),
+    new RetroTinkSetting({
+      name: 'output.resolution',
+      desc: 'HDMI Output -> Resolution',
+      byteRanges: [{ address: 0x36c, length: 1 }],
+      type: DataType.ENUM,
+      enums: [
+        { name: '4K60', value: new Uint8Array([0]) },
+        { name: '4K50', value: new Uint8Array([1]) },
+        { name: '1080p60', value: new Uint8Array([2]) },
+        { name: '1080p50', value: new Uint8Array([3]) },
+        { name: '1440p60', value: new Uint8Array([4]) },
+        { name: '1440p50', value: new Uint8Array([5]) },
+        { name: '1080p100', value: new Uint8Array([6]) },
+        { name: '1440p100', value: new Uint8Array([7]) },
+        { name: '1080p120', value: new Uint8Array([8]) },
+        { name: '1440p120', value: new Uint8Array([9]) },
+        { name: '480p60', value: new Uint8Array([13]) },
+        { name: 'Custom 1', value: new Uint8Array([69]) },
+        { name: 'Custom 2', value: new Uint8Array([70]) },
+        { name: 'Custom 3', value: new Uint8Array([71]) },
+        { name: 'Custom 4', value: new Uint8Array([72]) },
+      ],
+    }),
   ]);
 
   private constructor(bytes: Uint8Array) {
