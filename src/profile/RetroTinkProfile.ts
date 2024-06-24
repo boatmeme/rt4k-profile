@@ -108,6 +108,17 @@ export default class RetroTinkProfile {
         { name: 'HLG [8-bit]', value: new Uint8Array([2]) },
       ],
     }),
+    new RetroTinkSetting({
+      name: 'output.transmitter.vrr',
+      desc: 'HDMI Output -> Transmitter -> VRR',
+      byteRanges: [{ address: 0x2dc, length: 1 }],
+      type: DataType.ENUM,
+      enums: [
+        { name: 'Off', value: new Uint8Array([0]) },
+        { name: 'FreeSync', value: new Uint8Array([1]) },
+        { name: 'VESA', value: new Uint8Array([2]) },
+      ],
+    }),
   ]);
 
   private constructor(bytes: Uint8Array) {
