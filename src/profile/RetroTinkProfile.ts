@@ -97,6 +97,17 @@ export default class RetroTinkProfile {
         { name: 'Custom 4', value: new Uint8Array([72]) },
       ],
     }),
+    new RetroTinkSetting({
+      name: 'output.transmitter.hdr',
+      desc: 'HDMI Output -> Transmitter -> HDR',
+      byteRanges: [{ address: 0x2d0, length: 1 }],
+      type: DataType.ENUM,
+      enums: [
+        { name: 'Off', value: new Uint8Array([0]) },
+        { name: 'HDR10 [8-bit]', value: new Uint8Array([1]) },
+        { name: 'HLG [8-bit]', value: new Uint8Array([2]) },
+      ],
+    }),
   ]);
 
   private constructor(bytes: Uint8Array) {

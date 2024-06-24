@@ -1,4 +1,4 @@
-export const unpretty_json_str = `{"header":"RT4K Profile","advanced":{"effects":{"mask":{"enabled":true,"strength":-4,"path":"Mono Masks/A Grille Medium Mono.bmp"}}},"input":"HDMI","output":{"resolution":"4K60"}}`;
+export const unpretty_json_str = `{"header":"RT4K Profile","advanced":{"effects":{"mask":{"enabled":true,"strength":-4,"path":"Mono Masks/A Grille Medium Mono.bmp"}}},"input":"HDMI","output":{"resolution":"4K60","transmitter":{"hdr":"Off"}}}`;
 export const pretty_json_str = `{
   "header": "RT4K Profile",
   "advanced": {
@@ -12,7 +12,10 @@ export const pretty_json_str = `{
   },
   "input": "HDMI",
   "output": {
-    "resolution": "4K60"
+    "resolution": "4K60",
+    "transmitter": {
+      "hdr": "Off"
+    }
   }
 }`;
 export const invalid_json = `{
