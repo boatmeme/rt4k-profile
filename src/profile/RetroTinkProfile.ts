@@ -122,6 +122,16 @@ export default class RetroTinkProfile {
       ],
     }),
     new RetroTinkSetting({
+      name: 'output.transmitter.rgb_range',
+      desc: 'HDMI Output -> Transmitter -> RGB Range',
+      byteRanges: [{ address: 0x1f08, length: 1 }],
+      type: DataType.ENUM,
+      enums: [
+        { name: 'Full', value: new Uint8Array([0]) },
+        { name: 'Limited', value: new Uint8Array([1]) },
+      ],
+    }),
+    new RetroTinkSetting({
       name: 'output.transmitter.vrr',
       desc: 'HDMI Output -> Transmitter -> VRR',
       byteRanges: [{ address: 0x2dc, length: 1 }],
