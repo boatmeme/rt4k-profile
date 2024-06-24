@@ -109,6 +109,19 @@ export default class RetroTinkProfile {
       ],
     }),
     new RetroTinkSetting({
+      name: 'output.transmitter.colorimetry',
+      desc: 'HDMI Output -> Transmitter -> Colorimetry',
+      byteRanges: [{ address: 0x1ec8, length: 1 }],
+      type: DataType.ENUM,
+      enums: [
+        { name: 'Auto-Rec.709', value: new Uint8Array([0]) },
+        { name: 'Rec.709', value: new Uint8Array([1]) },
+        { name: 'Rec.2020', value: new Uint8Array([2]) },
+        { name: 'Adobe RGB', value: new Uint8Array([3]) },
+        { name: 'Display-P3', value: new Uint8Array([4]) },
+      ],
+    }),
+    new RetroTinkSetting({
       name: 'output.transmitter.vrr',
       desc: 'HDMI Output -> Transmitter -> VRR',
       byteRanges: [{ address: 0x2dc, length: 1 }],
