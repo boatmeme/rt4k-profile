@@ -3,4 +3,5 @@ export enum DataType {
   INT = 'INTEGER',
   STR = 'STRING',
   BIT = 'BIT',
+  ENUM = 'ENUM',
 }
