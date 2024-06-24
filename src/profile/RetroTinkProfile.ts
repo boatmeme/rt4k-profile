@@ -132,6 +132,17 @@ export default class RetroTinkProfile {
       ],
     }),
     new RetroTinkSetting({
+      name: 'output.transmitter.sync_lock',
+      desc: 'HDMI Output -> Transmitter -> Sync Lock',
+      byteRanges: [{ address: 0x2d8, length: 1 }],
+      type: DataType.ENUM,
+      enums: [
+        { name: 'Triple Buffer', value: new Uint8Array([0]) },
+        { name: 'Gen Lock', value: new Uint8Array([1]) },
+        { name: 'Frame Lock', value: new Uint8Array([2]) },
+      ],
+    }),
+    new RetroTinkSetting({
       name: 'output.transmitter.vrr',
       desc: 'HDMI Output -> Transmitter -> VRR',
       byteRanges: [{ address: 0x2dc, length: 1 }],
@@ -141,6 +152,12 @@ export default class RetroTinkProfile {
         { name: 'FreeSync', value: new Uint8Array([1]) },
         { name: 'VESA', value: new Uint8Array([2]) },
       ],
+    }),
+    new RetroTinkSetting({
+      name: 'output.transmitter.deep_color',
+      desc: 'HDMI Output -> Transmitter -> Deep Color',
+      byteRanges: [{ address: 0x2d4, length: 1 }],
+      type: DataType.BIT,
     }),
   ]);
 
