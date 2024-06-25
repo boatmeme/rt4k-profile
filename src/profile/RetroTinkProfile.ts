@@ -12,10 +12,6 @@ import {
   SettingNotSupportedError,
 } from '../exceptions/RetroTinkProfileException';
 
-type RetroTinkSettingsValuesPlainObject = {
-  [key: string]: string | number | boolean | RetroTinkSettingsValuesPlainObject;
-};
-
 export default class RetroTinkProfile {
   private _bytes: Uint8Array;
   private static _settings: RetroTinkSettings = new RetroTinkSettings([
@@ -172,51 +168,8 @@ export default class RetroTinkProfile {
     }
   }
 
-  private asPlainObject(): unknown {
-    const pojo: RetroTinkSettingsValuesPlainObject = {};
-
-    const addValueToObject = (
-      obj: RetroTinkSettingsValuesPlainObject,
-      keys: string[],
-      value: string | number | boolean,
-    ) => {
-      const key = keys[0];
-      if (keys.length === 1) {
-        obj[key] = value;
-      } else {
-        if (!obj[key]) {
-          obj[key] = {};
-        }
-        addValueToObject(obj[key] as RetroTinkSettingsValuesPlainObject, keys.slice(1), value);
-      }
-    };
-
-    Array.from(this.getValues()).forEach(([name, item]) => {
-      const keys = name.split('.');
-      let value: string | number | boolean;
-
-      switch (item.type) {
-        case DataType.STR:
-          value = item.asString();
-          break;
-        case DataType.ENUM:
-          value = item.asString();
-          break;
-        case DataType.BIT:
-          value = item.asBoolean();
-          break;
-        default:
-          value = item.asInt();
-      }
-
-      addValueToObject(pojo, keys, value);
-    });
-
-    return pojo;
-  }
-
   serializeValues(pretty: boolean = false): string {
-    return JSON.stringify(this.asPlainObject(), null, pretty ? 2 : 0);
+    return JSON.stringify(this.getValues().asPlainObject(), null, pretty ? 2 : 0);
   }
 
   deserializeValues(json: string): void {

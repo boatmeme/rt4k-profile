@@ -53,6 +53,9 @@ export class RetroTinkSetting {
   }
 }
 
+type RetroTinkSettingsValuesPlainObject = {
+  [key: string]: string | number | boolean | RetroTinkSettingsValuesPlainObject;
+};
 class RetroTinkBaseSettings<T extends RetroTinkSetting> extends Map<string, T> {
   constructor(settings: T[] = []) {
     super(settings.map((s) => [s.name, s]));
@@ -65,7 +68,50 @@ class RetroTinkBaseSettings<T extends RetroTinkSetting> extends Map<string, T> {
 }
 
 export class RetroTinkSettings extends RetroTinkBaseSettings<RetroTinkSetting> {}
-export class RetroTinkSettingsValues extends RetroTinkBaseSettings<RetroTinkSettingValue> {}
+export class RetroTinkSettingsValues extends RetroTinkBaseSettings<RetroTinkSettingValue> {
+  asPlainObject(): unknown {
+    const pojo: RetroTinkSettingsValuesPlainObject = {};
+
+    const addValueToObject = (
+      obj: RetroTinkSettingsValuesPlainObject,
+      keys: string[],
+      value: string | number | boolean,
+    ) => {
+      const key = keys[0];
+      if (keys.length === 1) {
+        obj[key] = value;
+      } else {
+        if (!obj[key]) {
+          obj[key] = {};
+        }
+        addValueToObject(obj[key] as RetroTinkSettingsValuesPlainObject, keys.slice(1), value);
+      }
+    };
+
+    Array.from(this).forEach(([name, item]) => {
+      const keys = name.split('.');
+      let value: string | number | boolean;
+
+      switch (item.type) {
+        case DataType.STR:
+          value = item.asString();
+          break;
+        case DataType.ENUM:
+          value = item.asString();
+          break;
+        case DataType.BIT:
+          value = item.asBoolean();
+          break;
+        default:
+          value = item.asInt();
+      }
+
+      addValueToObject(pojo, keys, value);
+    });
+
+    return pojo;
+  }  
+}
 
 export class RetroTinkSettingValue extends RetroTinkSetting {
   value: Uint8Array;
