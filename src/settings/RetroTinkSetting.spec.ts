@@ -55,7 +55,6 @@ describe('RetroTinkSetting', () => {
         );
         settings.set(v3.name, v3);
         const o = settings.asPlainObject();
-        console.log(o);
         expect(o).toEqual({
           some: {
             retrotink: {
