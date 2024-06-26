@@ -37,22 +37,6 @@ export class RetroTinkSetting {
     this.byteRanges = params.byteRanges;
     this.type = params.type;
     this.enums = params.enums;
-    if (this.type == DataType.ENUM) {
-      for (let i = 0; i < this.enums.length; i++) {
-        const val1 = this.enums[i].value;
-        for (let x = i + 1; x < this.enums.length; x++) {
-          const val2 = this.enums[x].value;
-          if (RetroTinkSettingValue.compareUint8Array(val1, val2)) {
-            throw new SettingTypeError(
-              this.name,
-              DataType.ENUM,
-              null,
-              `DataType.ENUM options must contain uniquely identifiable values`,
-            );
-          }
-        }
-      }
-    }
   }
   length(): number {
     return this.byteRanges.reduce((acc, r) => acc + r.length, 0);
