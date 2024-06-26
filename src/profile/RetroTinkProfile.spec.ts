@@ -83,6 +83,12 @@ describe('RetroTinkProfile', () => {
       const profile = await RetroTinkProfile.build();
       expect(() => profile.deserializeValues(invalid_json)).toThrow(SettingDeserializationError);
     });
+    test('should throw error for invalid plain object', async () => {
+      const profile = await RetroTinkProfile.build();
+      expect(() => profile.deserializeValues(`{ "root": [{"child":"cannot accept arrays"}]}`)).toThrow(
+        SettingDeserializationError,
+      );
+    });
     test('should throw error for invalid setting', async () => {
       const profile = await RetroTinkProfile.build();
       expect(() => profile.deserializeValues(bad_setting_json_str)).toThrow(SettingDeserializationError);

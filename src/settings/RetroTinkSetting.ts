@@ -3,6 +3,7 @@ import {
   SettingTypeError,
   SettingValidationError,
 } from '../exceptions/RetroTinkProfileException';
+import { addValueToObject, deepMerge } from '../utils/ObjectUtils';
 import { DataType } from './DataType';
 
 interface ByteRange {
@@ -42,6 +43,9 @@ export class RetroTinkSetting {
   }
 }
 
+type RetroTinkSettingsValuesPlainObject = {
+  [key: string]: string | number | boolean | RetroTinkSettingsValuesPlainObject;
+};
 class RetroTinkBaseSettings<T extends RetroTinkSetting> extends Map<string, T> {
   constructor(settings: T[] = []) {
     super(settings.map((s) => [s.name, s]));
@@ -54,7 +58,17 @@ class RetroTinkBaseSettings<T extends RetroTinkSetting> extends Map<string, T> {
 }
 
 export class RetroTinkSettings extends RetroTinkBaseSettings<RetroTinkSetting> {}
-export class RetroTinkSettingsValues extends RetroTinkBaseSettings<RetroTinkSettingValue> {}
+export class RetroTinkSettingsValues extends RetroTinkBaseSettings<RetroTinkSettingValue> {
+  asPlainObject(): RetroTinkSettingsValuesPlainObject {
+    const pojo: RetroTinkSettingsValuesPlainObject = {};
+
+    Array.from(this).forEach(([, item]) => {
+      deepMerge(pojo, item.asPlainObject());
+    });
+
+    return pojo;
+  }
+}
 
 export class RetroTinkSettingValue extends RetroTinkSetting {
   value: Uint8Array;
@@ -257,5 +271,29 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
     if (length > 0) {
       this.value[0] = bool ? 1 : 0;
     }
+  }
+
+  asPlainObject(): RetroTinkSettingsValuesPlainObject {
+    const pojo: RetroTinkSettingsValuesPlainObject = {};
+
+    const keys = this.name.split('.');
+    let value: string | number | boolean;
+
+    switch (this.type) {
+      case DataType.STR:
+        value = this.asString();
+        break;
+      case DataType.ENUM:
+        value = this.asString();
+        break;
+      case DataType.BIT:
+        value = this.asBoolean();
+        break;
+      default:
+        value = this.asInt();
+    }
+
+    addValueToObject(pojo, keys, value);
+    return pojo;
   }
 }
