@@ -16,6 +16,57 @@ describe('RetroTinkSetting', () => {
         expect(settings).toBeInstanceOf(Map);
       });
     });
+    describe('asPlainObject', () => {
+      it('should merge plain object values in complex, nested structures', () => {
+        const settings = new RetroTinkSettingsValues();
+        const v = new RetroTinkSettingValue(
+          new RetroTinkSetting({
+            name: 'some.retrotink.sibling_1',
+            desc: 'Any Setting',
+            byteRanges: [{ address: 0x0000, length: 1 }],
+            type: DataType.INT,
+          }),
+          new Uint8Array([4]),
+        );
+        settings.set(v.name, v);
+        const v2 = new RetroTinkSettingValue(
+          new RetroTinkSetting({
+            name: 'some.retrotink.sibling_2',
+            desc: 'Any Setting',
+            byteRanges: [{ address: 0x000d, length: 1 }],
+            type: DataType.STR,
+          }),
+          new Uint8Array([6]),
+        );
+        settings.set(v2.name, v2);
+        const v3 = new RetroTinkSettingValue(
+          new RetroTinkSetting({
+            name: 'some.uncle',
+            desc: 'Any Setting',
+            byteRanges: [{ address: 0x0000, length: 1 }],
+            type: DataType.ENUM,
+            enums: [
+              { name: 'Choice 1', value: new Uint8Array([1]) },
+              { name: 'Choice 2', value: new Uint8Array([2]) },
+              { name: 'Choice 3', value: new Uint8Array([3]) },
+            ],
+          }),
+          new Uint8Array([2]),
+        );
+        settings.set(v3.name, v3);
+        const o = settings.asPlainObject();
+        console.log(o);
+        expect(o).toEqual({
+          some: {
+            retrotink: {
+              sibling_1: 4,
+              sibling_2: '\x06',
+            },
+            uncle: 'Choice 2',
+          },
+        });
+      });
+    });
   });
   describe('RetroTinkSettings', () => {
     describe('constructor', () => {
@@ -39,6 +90,85 @@ describe('RetroTinkSetting', () => {
       test('not equal (different length)', () => {
         const comparison = RetroTinkSettingValue.compareUint8Array(new Uint8Array([1]), new Uint8Array([2, 3]));
         expect(comparison).toBe(false);
+      });
+    });
+    describe('asPlainObject', () => {
+      describe('DataType.STR', () => {
+        const s = new RetroTinkSetting({
+          name: 'some.retrotink.setting',
+          desc: 'Any Setting',
+          byteRanges: [{ address: 0x0000, length: 12 }],
+          type: DataType.STR,
+        });
+        const v = new RetroTinkSettingValue(s);
+        v.set('0123456789');
+        const o = v.asPlainObject();
+        expect(o).toEqual({
+          some: {
+            retrotink: {
+              setting: '0123456789',
+            },
+          },
+        });
+      });
+      describe('DataType.INT', () => {
+        const s = new RetroTinkSetting({
+          name: 'some.retrotink.setting',
+          desc: 'Any Setting',
+          byteRanges: [{ address: 0x0000, length: 1 }],
+          type: DataType.INT,
+        });
+        const v = new RetroTinkSettingValue(s);
+        v.set('0123');
+        const o = v.asPlainObject();
+        expect(o).toEqual({
+          some: {
+            retrotink: {
+              setting: 123,
+            },
+          },
+        });
+      });
+      describe('DataType.ENUM', () => {
+        const s = new RetroTinkSetting({
+          name: 'some.retrotink.setting',
+          desc: 'Any Setting',
+          byteRanges: [{ address: 0x0000, length: 1 }],
+          type: DataType.ENUM,
+          enums: [
+            { name: 'Choice 1', value: new Uint8Array([1]) },
+            { name: 'Choice 2', value: new Uint8Array([2]) },
+            { name: 'Choice 3', value: new Uint8Array([3]) },
+          ],
+        });
+        const v = new RetroTinkSettingValue(s);
+        v.set(1);
+        const o = v.asPlainObject();
+        expect(o).toEqual({
+          some: {
+            retrotink: {
+              setting: `Choice 2`,
+            },
+          },
+        });
+      });
+      describe('DataType.BIT', () => {
+        const s = new RetroTinkSetting({
+          name: 'some.retrotink.setting',
+          desc: 'Any Setting',
+          byteRanges: [{ address: 0x0000, length: 1 }],
+          type: DataType.BIT,
+        });
+        const v = new RetroTinkSettingValue(s);
+        v.set(true);
+        const o = v.asPlainObject();
+        expect(o).toEqual({
+          some: {
+            retrotink: {
+              setting: true,
+            },
+          },
+        });
       });
     });
     describe('set', () => {
@@ -459,19 +589,22 @@ describe('RetroTinkSetting', () => {
         test('should throw with bad bytes', () => {
           expect(() => new RetroTinkSettingValue(s, new Uint8Array([4]))).toThrow(SettingValidationError);
         });
-        test('should throw when constructing a DataType.ENUM with non-unique values', () =>{
-          expect(() => new RetroTinkSetting({
-            name: 'some.retrotink.setting',
-            desc: 'Some value from a set of predefined choices',
-            byteRanges: [{ address: 0x0000, length: 1 }],
-            type: DataType.ENUM,
-            enums: [
-              { name: 'Choice 1', value: new Uint8Array([1]) },
-              { name: 'Choice 2', value: new Uint8Array([2]) },
-              { name: 'Duplicate Value', value: new Uint8Array([2]) },
-            ],
-          })).toThrow(SettingTypeError);
-        })
+        test('should throw when constructing a DataType.ENUM with non-unique values', () => {
+          expect(
+            () =>
+              new RetroTinkSetting({
+                name: 'some.retrotink.setting',
+                desc: 'Some value from a set of predefined choices',
+                byteRanges: [{ address: 0x0000, length: 1 }],
+                type: DataType.ENUM,
+                enums: [
+                  { name: 'Choice 1', value: new Uint8Array([1]) },
+                  { name: 'Choice 2', value: new Uint8Array([2]) },
+                  { name: 'Duplicate Value', value: new Uint8Array([2]) },
+                ],
+              }),
+          ).toThrow(SettingTypeError);
+        });
       });
       describe('DataType.DOES_NOT_EXIST', () => {
         test('should throw with unexpected type', () => {

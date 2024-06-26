@@ -3,6 +3,7 @@ import {
   SettingTypeError,
   SettingValidationError,
 } from '../exceptions/RetroTinkProfileException';
+import { addValueToObject, deepMerge } from '../utils/ObjectUtils';
 import { DataType } from './DataType';
 
 interface ByteRange {
@@ -42,7 +43,12 @@ export class RetroTinkSetting {
         for (let x = i + 1; x < this.enums.length; x++) {
           const val2 = this.enums[x].value;
           if (RetroTinkSettingValue.compareUint8Array(val1, val2)) {
-            throw new SettingTypeError(this.name, DataType.ENUM, null, `DataType.ENUM options must contain uniquely identifiable values` )
+            throw new SettingTypeError(
+              this.name,
+              DataType.ENUM,
+              null,
+              `DataType.ENUM options must contain uniquely identifiable values`,
+            );
           }
         }
       }
@@ -69,48 +75,15 @@ class RetroTinkBaseSettings<T extends RetroTinkSetting> extends Map<string, T> {
 
 export class RetroTinkSettings extends RetroTinkBaseSettings<RetroTinkSetting> {}
 export class RetroTinkSettingsValues extends RetroTinkBaseSettings<RetroTinkSettingValue> {
-  asPlainObject(): unknown {
+  asPlainObject(): RetroTinkSettingsValuesPlainObject {
     const pojo: RetroTinkSettingsValuesPlainObject = {};
 
-    const addValueToObject = (
-      obj: RetroTinkSettingsValuesPlainObject,
-      keys: string[],
-      value: string | number | boolean,
-    ) => {
-      const key = keys[0];
-      if (keys.length === 1) {
-        obj[key] = value;
-      } else {
-        if (!obj[key]) {
-          obj[key] = {};
-        }
-        addValueToObject(obj[key] as RetroTinkSettingsValuesPlainObject, keys.slice(1), value);
-      }
-    };
-
-    Array.from(this).forEach(([name, item]) => {
-      const keys = name.split('.');
-      let value: string | number | boolean;
-
-      switch (item.type) {
-        case DataType.STR:
-          value = item.asString();
-          break;
-        case DataType.ENUM:
-          value = item.asString();
-          break;
-        case DataType.BIT:
-          value = item.asBoolean();
-          break;
-        default:
-          value = item.asInt();
-      }
-
-      addValueToObject(pojo, keys, value);
+    Array.from(this).forEach(([, item]) => {
+      deepMerge(pojo, item.asPlainObject());
     });
 
     return pojo;
-  }  
+  }
 }
 
 export class RetroTinkSettingValue extends RetroTinkSetting {
@@ -314,5 +287,29 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
     if (length > 0) {
       this.value[0] = bool ? 1 : 0;
     }
+  }
+
+  asPlainObject(): RetroTinkSettingsValuesPlainObject {
+    const pojo: RetroTinkSettingsValuesPlainObject = {};
+
+    const keys = this.name.split('.');
+    let value: string | number | boolean;
+
+    switch (this.type) {
+      case DataType.STR:
+        value = this.asString();
+        break;
+      case DataType.ENUM:
+        value = this.asString();
+        break;
+      case DataType.BIT:
+        value = this.asBoolean();
+        break;
+      default:
+        value = this.asInt();
+    }
+
+    addValueToObject(pojo, keys, value);
+    return pojo;
   }
 }
