@@ -51,7 +51,9 @@ export function flattenObject<T extends NestedObject>(obj: T, parentKey: string 
       const value = obj[key];
       const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
-      if (typeof value === 'object' && value !== null) {
+      if (Array.isArray(value)) {
+        throw new Error(`There are no array values in any settings. Found array at key: ${fullKey}`);
+      } else if (typeof value === 'object' && value !== null) {
         // If it's a nested object, recurse
         result = result.concat(flattenObject(value, fullKey));
       } else {
