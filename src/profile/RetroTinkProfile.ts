@@ -11,6 +11,7 @@ import {
   SettingDeserializationError,
   SettingNotSupportedError,
 } from '../exceptions/RetroTinkProfileException';
+import { flattenObject } from '../utils/ObjectUtils';
 
 export default class RetroTinkProfile {
   private _bytes: Uint8Array;
@@ -173,20 +174,11 @@ export default class RetroTinkProfile {
   }
 
   deserializeValues(json: string): void {
-    const addValueToSettings = (obj: unknown, parentKey: string = '') => {
-      Object.keys(obj).forEach((key) => {
-        const fullKey = parentKey ? `${parentKey}.${key}` : key;
-        const value = obj[key];
-        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-          addValueToSettings(value, fullKey);
-        } else {
-          this.setValue(fullKey, value);
-        }
-      });
-    };
     try {
       const parsedObject = JSON.parse(json);
-      addValueToSettings(parsedObject);
+      for (const setting of flattenObject(parsedObject)) {
+        this.setValue(setting.name, setting.value);
+      }
     } catch (err) {
       throw new SettingDeserializationError(err);
     }

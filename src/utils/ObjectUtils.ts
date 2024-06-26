@@ -31,3 +31,35 @@ export function addValueToObject<T>(obj: Record<string, unknown>, keys: string[]
     addValueToObject(obj[key] as Record<string, unknown>, keys.slice(1), value);
   }
 }
+
+type Primitive = string | number | boolean;
+
+type NestedObject = {
+  [key: string]: Primitive | NestedObject;
+};
+
+type FlattenedPair = {
+  name: string;
+  value: Primitive;
+};
+
+export function flattenObject<T extends NestedObject>(obj: T, parentKey: string = ''): FlattenedPair[] {
+  let result: FlattenedPair[] = [];
+
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      const value = obj[key];
+      const fullKey = parentKey ? `${parentKey}.${key}` : key;
+
+      if (typeof value === 'object' && value !== null) {
+        // If it's a nested object, recurse
+        result = result.concat(flattenObject(value, fullKey));
+      } else {
+        // If it's a primitive (string, number, or boolean), add it to the result
+        result.push({ name: fullKey, value: value as Primitive });
+      }
+    }
+  }
+
+  return result;
+}
