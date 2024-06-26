@@ -13,6 +13,15 @@ import {
 } from '../exceptions/RetroTinkProfileException';
 import { flattenObject } from '../utils/ObjectUtils';
 
+type ProfileScope = string | RegExp | ((key: string) => boolean);
+
+export class RetroTinkScopedProfile {
+  constructor(
+    public profile: RetroTinkProfile,
+    public scopes: ProfileScope[],
+  ) {}
+}
+
 export default class RetroTinkProfile {
   private _bytes: Uint8Array;
   private static _settings: RetroTinkSettings = new RetroTinkSettings([
@@ -187,8 +196,52 @@ export default class RetroTinkProfile {
     );
   }
 
-  sliceBytes(setting: RetroTinkSetting): Uint8Array {
+  static get(key: string): RetroTinkSetting {
+    return RetroTinkProfile._settings.get(key);
+  }
+
+  private sliceBytes(setting: RetroTinkSetting): Uint8Array {
     return RetroTinkProfile.sliceBytes(setting, this._bytes);
+  }
+
+  private _setValueWithInstance(setting: RetroTinkSettingValue): void {
+    if (!RetroTinkProfile._settings.has(setting.name)) throw new SettingNotSupportedError(setting.name);
+    const byte_array = Array.from(this._bytes);
+    let offset = 0;
+    for (const byteRange of setting.byteRanges) {
+      byte_array.splice(byteRange.address, byteRange.length, ...setting.value.slice(offset, offset + byteRange.length));
+      offset += byteRange.length;
+    }
+    this._bytes = new Uint8Array(byte_array);
+  }
+
+  private _setValueWithPrimitive(settingsKey: string, val: string | number | boolean): void {
+    if (!RetroTinkProfile._settings.has(settingsKey)) throw new SettingNotSupportedError(settingsKey);
+    const setting = this.getValue(settingsKey);
+    setting.set(val);
+    return this._setValueWithInstance(setting);
+  }
+
+  private mergeAllSettings(target: RetroTinkProfile, source: RetroTinkProfile): void {
+    for (const [, value] of source.getValues()) {
+      target.setValue(value);
+    }
+  }
+
+  private mergeScopedSettings(target: RetroTinkProfile, source: RetroTinkProfile, scopes: ProfileScope[]): void {
+    for (const [key, value] of source.getValues()) {
+      if (this.matchesAnyScope(key, scopes)) {
+        target.setValue(value);
+      }
+    }
+  }
+
+  private matchesAnyScope(key: string, scopes: ProfileScope[]): boolean {
+    return scopes.some((scope) => {
+      if (typeof scope === 'string') return key.startsWith(scope);
+      if (scope instanceof RegExp) return scope.test(key);
+      if (typeof scope === 'function') return scope(key);
+    });
   }
 
   getSettingsNames(): string[] {
@@ -199,10 +252,6 @@ export default class RetroTinkProfile {
     return new RetroTinkSettingsValues(
       Array.from(RetroTinkProfile._settings, ([, s]) => new RetroTinkSettingValue(s, this.sliceBytes(s))),
     );
-  }
-
-  static get(key: string): RetroTinkSetting {
-    return RetroTinkProfile._settings.get(key);
   }
 
   getValue(key: string): RetroTinkSettingValue {
@@ -224,24 +273,6 @@ export default class RetroTinkProfile {
       }
     }
     this._bytes = new Uint8Array(byte_array);
-  }
-
-  private _setValueWithInstance(setting: RetroTinkSettingValue): void {
-    if (!RetroTinkProfile._settings.has(setting.name)) throw new SettingNotSupportedError(setting.name);
-    const byte_array = Array.from(this._bytes);
-    let offset = 0;
-    for (const byteRange of setting.byteRanges) {
-      byte_array.splice(byteRange.address, byteRange.length, ...setting.value.slice(offset, offset + byteRange.length));
-      offset += byteRange.length;
-    }
-    this._bytes = new Uint8Array(byte_array);
-  }
-
-  private _setValueWithPrimitive(settingsKey: string, val: string | number | boolean): void {
-    if (!RetroTinkProfile._settings.has(settingsKey)) throw new SettingNotSupportedError(settingsKey);
-    const setting = this.getValue(settingsKey);
-    setting.set(val);
-    return this._setValueWithInstance(setting);
   }
 
   setValue(setting: RetroTinkSettingValue): void;
@@ -267,5 +298,23 @@ export default class RetroTinkProfile {
     } catch (err) {
       throw new SettingDeserializationError(err);
     }
+  }
+
+  clone(): RetroTinkProfile {
+    return new RetroTinkProfile(this._bytes);
+  }
+
+  merge(...sources: (RetroTinkProfile | RetroTinkScopedProfile)[]): RetroTinkProfile {
+    const newProfile = this.clone();
+
+    for (const source of sources) {
+      if (source instanceof RetroTinkProfile) {
+        this.mergeAllSettings(newProfile, source);
+      } else if (source instanceof RetroTinkScopedProfile) {
+        this.mergeScopedSettings(newProfile, source.profile, source.scopes);
+      }
+    }
+
+    return newProfile;
   }
 }

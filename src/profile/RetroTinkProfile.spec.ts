@@ -5,7 +5,7 @@ import {
   SettingNotSupportedError,
 } from '../exceptions/RetroTinkProfileException';
 import { RetroTinkSetting, RetroTinkSettingValue, RetroTinkSettingsValues } from '../settings/RetroTinkSetting';
-import RetroTinkProfile from './RetroTinkProfile';
+import RetroTinkProfile, { RetroTinkScopedProfile } from './RetroTinkProfile';
 import { bad_setting_json_str, invalid_json, pretty_json_str, unpretty_json_str } from './__fixtures__/json_profiles';
 
 describe('RetroTinkProfile', () => {
@@ -159,6 +159,44 @@ describe('RetroTinkProfile', () => {
         new Uint8Array([250]),
       );
       expect(() => profile.setValue(setting)).toThrow(SettingNotSupportedError);
+    });
+  });
+  describe('merge', () => {
+    test('should merge values from 2 or more RetroTinkProfile instances into a new profile instance', async () => {
+      const p1 = await RetroTinkProfile.build();
+      p1.setValue('output.resolution', '1440p60');
+      const p2 = p1.clone();
+      p2.setValue('input', 'Front|S-Video');
+      const p3 = p1.clone();
+      p3.setValue('advanced.effects.mask.strength', -4);
+      const p4 = p1.merge(p2, p3);
+      expect(p4.getValue('output.resolution').asString()).toEqual('1440p60');
+      expect(p4.getValue('advanced.effects.mask.strength').asInt()).toEqual(-4);
+      expect(p4.getValue('input').asString()).toEqual('HDMI');
+      expect(p1.getValue('input').asString()).toEqual('HDMI');
+    });
+    test('should merge values from 2 or more RetroTinkScopedProfile instances into a new profile instance', async () => {
+      const p1 = await RetroTinkProfile.build();
+      p1.setValue('output.resolution', '1440p60');
+      const p2 = p1.clone();
+      p2.setValue('input', 'Front|S-Video');
+      const p3 = p1.clone();
+      p3.setValue('output.transmitter.colorimetry', 3);
+      const p4 = p1.clone();
+      p4.setValue('output.transmitter.colorimetry', 0);
+      p4.setValue('output.transmitter.hdr', 1);
+      const p5 = p1.merge(
+        new RetroTinkScopedProfile(p2, ['input']),
+        new RetroTinkScopedProfile(p3, [/output\.transmitter/]),
+        new RetroTinkScopedProfile(p4, [(n) => n.startsWith('output.transmitter.hdr')]),
+        new RetroTinkScopedProfile(p4, ['something-invalid']),
+      );
+      expect(p5.getValue('output.resolution').asString()).toEqual('1440p60');
+      expect(p5.getValue('output.transmitter.colorimetry').asString()).toEqual('Adobe RGB');
+      expect(p5.getValue('output.transmitter.hdr').asString()).toEqual('HDR10 [8-bit]');
+      expect(p5.getValue('input').asString()).toEqual('Front|S-Video');
+      expect(p3.getValue('input').asString()).toEqual('HDMI');
+      expect(p1.getValue('input').asString()).toEqual('HDMI');
     });
   });
 });
