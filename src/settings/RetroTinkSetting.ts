@@ -43,7 +43,7 @@ export class RetroTinkSetting {
   }
 }
 
-type RetroTinkSettingsValuesPlainObject = {
+export type RetroTinkSettingsValuesPlainObject = {
   [key: string]: string | number | boolean | RetroTinkSettingsValuesPlainObject;
 };
 class RetroTinkBaseSettings<T extends RetroTinkSetting> extends Map<string, T> {
