@@ -1,3 +1,5 @@
+import { Primitive } from '../settings/Schema';
+
 export function isObject(item: unknown): boolean {
   return item && typeof item === 'object' && !Array.isArray(item);
 }
@@ -31,8 +33,6 @@ export function addValueToObject<T>(obj: Record<string, unknown>, keys: string[]
     addValueToObject(obj[key] as Record<string, unknown>, keys.slice(1), value);
   }
 }
-
-type Primitive = string | number | boolean;
 
 type NestedObject = {
   [key: string]: Primitive | NestedObject;
