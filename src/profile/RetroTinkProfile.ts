@@ -5,6 +5,7 @@ import {
   RetroTinkSettingValue,
   RetroTinkSettings,
   RetroTinkSettingsValues,
+  RetroTinkSettingsValuesPlainObject,
 } from '../settings/RetroTinkSetting';
 import {
   InvalidProfileFormatError,
@@ -222,21 +223,31 @@ export default class RetroTinkProfile {
     return this._setValueWithInstance(setting);
   }
 
-  private mergeAllSettings(target: RetroTinkProfile, source: RetroTinkProfile): void {
+  private static mergeAllSettings(target: RetroTinkProfile, source: RetroTinkProfile): void {
     for (const [, value] of source.getValues()) {
       target.setValue(value);
     }
   }
 
-  private mergeScopedSettings(target: RetroTinkProfile, source: RetroTinkProfile, scopes: ProfileScope[]): void {
+  private static mergeScopedSettings(target: RetroTinkProfile, source: RetroTinkProfile, scopes: ProfileScope[]): void {
     for (const [key, value] of source.getValues()) {
-      if (this.matchesAnyScope(key, scopes)) {
+      if (RetroTinkProfile.matchesAnyScope(key, scopes)) {
         target.setValue(value);
       }
     }
   }
 
-  private matchesAnyScope(key: string, scopes: ProfileScope[]): boolean {
+  private static mergeSettingsValues(target: RetroTinkProfile, source: RetroTinkSettingsValues): void {
+    for (const value of source.values()) {
+      target.setValue(value);
+    }
+  }
+
+  private static mergeSettingValue(target: RetroTinkProfile, source: RetroTinkSettingValue): void {
+    target.setValue(source);
+  }
+
+  private static matchesAnyScope(key: string, scopes: ProfileScope[]): boolean {
     return scopes.some((scope) => {
       if (typeof scope === 'string') return key.startsWith(scope);
       if (scope instanceof RegExp) return scope.test(key);
@@ -248,9 +259,12 @@ export default class RetroTinkProfile {
     return Array.from(RetroTinkProfile._settings).map(([, s]) => s.name);
   }
 
-  getValues(): RetroTinkSettingsValues {
+  getValues(...scopes: ProfileScope[]): RetroTinkSettingsValues {
+    const filterScope = scopes.length == 0 ? [() => true] : scopes;
     return new RetroTinkSettingsValues(
-      Array.from(RetroTinkProfile._settings, ([, s]) => new RetroTinkSettingValue(s, this.sliceBytes(s))),
+      Array.from(RetroTinkProfile._settings, ([, s]) => new RetroTinkSettingValue(s, this.sliceBytes(s))).filter((s) =>
+        RetroTinkProfile.matchesAnyScope(s.name, filterScope),
+      ),
     );
   }
 
@@ -304,14 +318,30 @@ export default class RetroTinkProfile {
     return new RetroTinkProfile(this._bytes);
   }
 
-  merge(...sources: (RetroTinkProfile | RetroTinkScopedProfile)[]): RetroTinkProfile {
+  merge(
+    ...sources: (
+      | RetroTinkProfile
+      | RetroTinkScopedProfile
+      | RetroTinkSettingsValues
+      | RetroTinkSettingValue
+      | RetroTinkSettingsValuesPlainObject
+    )[]
+  ): RetroTinkProfile {
     const newProfile = this.clone();
 
     for (const source of sources) {
       if (source instanceof RetroTinkProfile) {
-        this.mergeAllSettings(newProfile, source);
+        RetroTinkProfile.mergeAllSettings(newProfile, source);
       } else if (source instanceof RetroTinkScopedProfile) {
-        this.mergeScopedSettings(newProfile, source.profile, source.scopes);
+        RetroTinkProfile.mergeScopedSettings(newProfile, source.profile, source.scopes);
+      } else if (source instanceof RetroTinkSettingsValues) {
+        RetroTinkProfile.mergeSettingsValues(newProfile, source);
+      } else if (source instanceof RetroTinkSettingValue) {
+        RetroTinkProfile.mergeSettingValue(newProfile, source);
+      } else {
+        for (const setting of flattenObject(source)) {
+          newProfile.setValue(setting.name, setting.value);
+        }
       }
     }
 
