@@ -5,6 +5,7 @@ import {
   SettingNotSupportedError,
 } from '../exceptions/RetroTinkProfileException';
 import { RetroTinkSetting, RetroTinkSettingValue, RetroTinkSettingsValues } from '../settings/RetroTinkSetting';
+import { RetroTinkSettingName, RetroTinkSettingPath } from '../settings/Schema';
 import RetroTinkProfile from './RetroTinkProfile';
 import { bad_setting_json_str, invalid_json, pretty_json_str, unpretty_json_str } from './__fixtures__/json_profiles';
 
@@ -120,7 +121,7 @@ describe('RetroTinkProfile', () => {
     });
     test('should throw for an invalid setting', async () => {
       const profile = await RetroTinkProfile.build(`${__dirname}/__fixtures__/mask-enabled-strength-10.rt4`);
-      expect(() => profile.getValue('some.bunko.setting')).toThrow(SettingNotSupportedError);
+      expect(() => profile.getValue('some.bunko.setting' as RetroTinkSettingName)).toThrow(SettingNotSupportedError);
     });
   });
   describe('setValues', () => {
@@ -154,7 +155,7 @@ describe('RetroTinkProfile', () => {
       const profile = await RetroTinkProfile.build();
       const setting = new RetroTinkSettingValue(
         {
-          name: 'something.unsupported',
+          name: 'something.unsupported' as RetroTinkSettingPath,
         } as RetroTinkSetting,
         new Uint8Array([250]),
       );

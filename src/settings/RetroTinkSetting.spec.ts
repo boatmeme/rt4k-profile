@@ -6,6 +6,9 @@ import {
   RetroTinkSettingsValues,
 } from '../settings/RetroTinkSetting';
 import { DataType } from './DataType';
+import { RetroTinkSettingPath } from './Schema';
+
+const name = 'some.retrotink.setting' as RetroTinkSettingPath;
 
 describe('RetroTinkSetting', () => {
   describe('RetroTinkSettingsValues', () => {
@@ -21,7 +24,7 @@ describe('RetroTinkSetting', () => {
         const settings = new RetroTinkSettingsValues();
         const v = new RetroTinkSettingValue(
           new RetroTinkSetting({
-            name: 'some.retrotink.sibling_1',
+            name: 'some.retrotink.sibling_1' as RetroTinkSettingPath,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.INT,
@@ -31,7 +34,7 @@ describe('RetroTinkSetting', () => {
         settings.set(v.name, v);
         const v2 = new RetroTinkSettingValue(
           new RetroTinkSetting({
-            name: 'some.retrotink.sibling_2',
+            name: 'some.retrotink.sibling_2' as RetroTinkSettingPath,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x000d, length: 1 }],
             type: DataType.STR,
@@ -41,7 +44,7 @@ describe('RetroTinkSetting', () => {
         settings.set(v2.name, v2);
         const v3 = new RetroTinkSettingValue(
           new RetroTinkSetting({
-            name: 'some.uncle',
+            name: 'some.uncle' as RetroTinkSettingPath,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.ENUM,
@@ -94,7 +97,7 @@ describe('RetroTinkSetting', () => {
     describe('asPlainObject', () => {
       describe('DataType.STR', () => {
         const s = new RetroTinkSetting({
-          name: 'some.retrotink.setting',
+          name,
           desc: 'Any Setting',
           byteRanges: [{ address: 0x0000, length: 12 }],
           type: DataType.STR,
@@ -112,7 +115,7 @@ describe('RetroTinkSetting', () => {
       });
       describe('DataType.INT', () => {
         const s = new RetroTinkSetting({
-          name: 'some.retrotink.setting',
+          name,
           desc: 'Any Setting',
           byteRanges: [{ address: 0x0000, length: 1 }],
           type: DataType.INT,
@@ -130,7 +133,7 @@ describe('RetroTinkSetting', () => {
       });
       describe('DataType.ENUM', () => {
         const s = new RetroTinkSetting({
-          name: 'some.retrotink.setting',
+          name,
           desc: 'Any Setting',
           byteRanges: [{ address: 0x0000, length: 1 }],
           type: DataType.ENUM,
@@ -153,7 +156,7 @@ describe('RetroTinkSetting', () => {
       });
       describe('DataType.BIT', () => {
         const s = new RetroTinkSetting({
-          name: 'some.retrotink.setting',
+          name,
           desc: 'Any Setting',
           byteRanges: [{ address: 0x0000, length: 1 }],
           type: DataType.BIT,
@@ -174,7 +177,7 @@ describe('RetroTinkSetting', () => {
       describe('DataType.STR', () => {
         test('should set with string', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 12 }],
             type: DataType.STR,
@@ -212,7 +215,7 @@ describe('RetroTinkSetting', () => {
 
         test('should return boolean from asBoolean()', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.STR,
@@ -226,7 +229,7 @@ describe('RetroTinkSetting', () => {
 
         test('should parse fromBoolean()', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 5 }],
             type: DataType.STR,
@@ -252,7 +255,7 @@ describe('RetroTinkSetting', () => {
       describe('DataType.INT', () => {
         test('should set with string', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.INT,
@@ -264,7 +267,7 @@ describe('RetroTinkSetting', () => {
         });
         test('should set with number', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.INT,
@@ -277,7 +280,7 @@ describe('RetroTinkSetting', () => {
 
         test('should return boolean from asBoolean()', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.INT,
@@ -290,7 +293,7 @@ describe('RetroTinkSetting', () => {
         });
         test('should parse fromBoolean()', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.INT,
@@ -304,7 +307,7 @@ describe('RetroTinkSetting', () => {
 
         test('should throw if type not implemented in asInt()', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 8 }],
             type: DataType.INT,
@@ -314,7 +317,7 @@ describe('RetroTinkSetting', () => {
         });
         test('should throw if type not implemented in fromInt()', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 8 }],
             type: DataType.INT,
@@ -324,7 +327,7 @@ describe('RetroTinkSetting', () => {
         });
         test('should throw if out of range', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.INT,
@@ -334,7 +337,7 @@ describe('RetroTinkSetting', () => {
         });
         test('should set with boolean', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.INT,
@@ -346,7 +349,7 @@ describe('RetroTinkSetting', () => {
         });
         test('should throw if not a number', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.INT,
@@ -356,7 +359,7 @@ describe('RetroTinkSetting', () => {
         });
         test('should throw with unexpected type', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.INT,
@@ -368,7 +371,7 @@ describe('RetroTinkSetting', () => {
       describe('DataType.SIGNED_INT', () => {
         test('should set with string', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.SIGNED_INT,
@@ -380,7 +383,7 @@ describe('RetroTinkSetting', () => {
         });
         test('should set with number', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.SIGNED_INT,
@@ -392,7 +395,7 @@ describe('RetroTinkSetting', () => {
         });
         test('should parse fromBoolean()', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.SIGNED_INT,
@@ -405,7 +408,7 @@ describe('RetroTinkSetting', () => {
         });
         test('should throw if out of range', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.SIGNED_INT,
@@ -415,7 +418,7 @@ describe('RetroTinkSetting', () => {
         });
         test('should set with boolean', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.SIGNED_INT,
@@ -427,7 +430,7 @@ describe('RetroTinkSetting', () => {
         });
         test('should throw if not a number', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.SIGNED_INT,
@@ -437,7 +440,7 @@ describe('RetroTinkSetting', () => {
         });
         test('should throw with unexpected type', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.SIGNED_INT,
@@ -449,7 +452,7 @@ describe('RetroTinkSetting', () => {
       describe('DataType.BIT', () => {
         test('should set with string', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.BIT,
@@ -464,7 +467,7 @@ describe('RetroTinkSetting', () => {
         });
         test('should throw with invalid string', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.BIT,
@@ -513,7 +516,7 @@ describe('RetroTinkSetting', () => {
         });
         test('should return boolean from asBoolean()', () => {
           const s = new RetroTinkSetting({
-            name: 'some.retrotink.setting',
+            name,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.BIT,
@@ -537,7 +540,7 @@ describe('RetroTinkSetting', () => {
       });
       describe('DataType.ENUM', () => {
         const s = new RetroTinkSetting({
-          name: 'some.retrotink.setting',
+          name,
           desc: 'Some value from a set of predefined choices',
           byteRanges: [{ address: 0x0000, length: 1 }],
           type: DataType.ENUM,

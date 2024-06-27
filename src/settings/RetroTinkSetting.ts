@@ -5,6 +5,7 @@ import {
 } from '../exceptions/RetroTinkProfileException';
 import { addValueToObject, deepMerge } from '../utils/ObjectUtils';
 import { DataType } from './DataType';
+import { RetroTinkSettingName, RetroTinkSettingPath } from './Schema';
 
 interface ByteRange {
   address: number;
@@ -12,7 +13,7 @@ interface ByteRange {
 }
 
 interface RetroTinkSettingParams {
-  name: string;
+  name: RetroTinkSettingPath;
   desc: string;
   byteRanges: ByteRange[];
   type: DataType;
@@ -25,7 +26,7 @@ interface RetroTinkEnumValue {
 }
 
 export class RetroTinkSetting {
-  name: string;
+  name: RetroTinkSettingPath;
   desc: string;
   byteRanges: ByteRange[];
   type: DataType;
@@ -51,7 +52,7 @@ class RetroTinkBaseSettings<T extends RetroTinkSetting> extends Map<string, T> {
     super(settings.map((s) => [s.name, s]));
   }
 
-  get(key: string): T {
+  get<S extends RetroTinkSettingName>(key: S): T {
     if (!this.has(key)) throw new SettingNotSupportedError(key);
     return super.get(key);
   }

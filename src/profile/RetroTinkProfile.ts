@@ -1,5 +1,4 @@
 import { readFileBinary, readFileBinarySync } from '../utils/FileUtils';
-import { DataType } from '../settings/DataType';
 import {
   RetroTinkSetting,
   RetroTinkSettingValue,
@@ -13,153 +12,13 @@ import {
   SettingNotSupportedError,
 } from '../exceptions/RetroTinkProfileException';
 import { flattenObject } from '../utils/ObjectUtils';
+import { RetroTinkSettingName, RetroTinkSettingPath, RetroTinkSettingsVersion } from '../settings/Schema';
 
-type ProfileScope = string | RegExp | ((key: string) => boolean);
+type ProfileScope<T extends RetroTinkSettingPath> = T | RegExp | ((key: T) => boolean);
 
 export default class RetroTinkProfile {
   private _bytes: Uint8Array;
-  private static _settings: RetroTinkSettings = new RetroTinkSettings([
-    new RetroTinkSetting({
-      name: 'header',
-      desc: 'File Header',
-      byteRanges: [{ address: 0x0000, length: 12 }],
-      type: DataType.STR,
-    }),
-    new RetroTinkSetting({
-      name: 'advanced.effects.mask.enabled',
-      desc: 'Advanced -> Processing -> Mask -> Enabled',
-      byteRanges: [{ address: 0x008c, length: 1 }],
-      type: DataType.BIT,
-    }),
-    new RetroTinkSetting({
-      name: 'advanced.effects.mask.strength',
-      desc: 'Advanced -> Processing -> Mask -> Strength',
-      byteRanges: [{ address: 0x02a0, length: 1 }],
-      type: DataType.SIGNED_INT,
-    }),
-    new RetroTinkSetting({
-      name: 'advanced.effects.mask.path',
-      desc: 'Advanced -> Processing -> Mask -> Path',
-      byteRanges: [{ address: 0x0090, length: 256 }],
-      type: DataType.STR,
-    }),
-    new RetroTinkSetting({
-      name: 'input',
-      desc: 'Input',
-      byteRanges: [
-        { address: 0x0368, length: 1 },
-        { address: 0x5869, length: 1 },
-      ],
-      type: DataType.ENUM,
-      enums: [
-        { name: 'HDMI', value: new Uint8Array([5, 0]) },
-        { name: 'Front|Composite', value: new Uint8Array([3, 3]) },
-        { name: 'Front|S-Video', value: new Uint8Array([3, 4]) },
-        { name: 'RCA|YPbPr', value: new Uint8Array([0, 7]) },
-        { name: 'RCA|RGsB', value: new Uint8Array([0, 8]) },
-        { name: 'RCA|CVBS on Green', value: new Uint8Array([0, 9]) },
-        { name: 'SCART|RGBS (75 Ohm)', value: new Uint8Array([2, 12]) },
-        { name: 'SCART|RGsB', value: new Uint8Array([2, 13]) },
-        { name: 'SCART|YPbPr', value: new Uint8Array([2, 14]) },
-        { name: 'SCART|CVBS on Pin 20', value: new Uint8Array([2, 15]) },
-        { name: 'SCART|CVBS on Green', value: new Uint8Array([2, 16]) },
-        { name: 'SCART|Y/C on Pin 20/Red', value: new Uint8Array([2, 17]) },
-        { name: 'HD-15|RGBHV', value: new Uint8Array([1, 20]) },
-        { name: 'HD-15|RGBS', value: new Uint8Array([1, 21]) },
-        { name: 'HD-15|RGsB', value: new Uint8Array([1, 22]) },
-        { name: 'HD-15|YPbPr', value: new Uint8Array([1, 23]) },
-        { name: 'HD-15|CVBS on Hsync', value: new Uint8Array([1, 24]) },
-        { name: 'HD-15|CVBS on Green', value: new Uint8Array([1, 25]) },
-        { name: 'HD-15|Y/C on Green/Red', value: new Uint8Array([1, 26]) },
-        { name: 'HD-15|Y/C on G/R (Enh.)', value: new Uint8Array([1, 27]) },
-      ],
-    }),
-    new RetroTinkSetting({
-      name: 'output.resolution',
-      desc: 'HDMI Output -> Resolution',
-      byteRanges: [{ address: 0x36c, length: 1 }],
-      type: DataType.ENUM,
-      enums: [
-        { name: '4K60', value: new Uint8Array([0]) },
-        { name: '4K50', value: new Uint8Array([1]) },
-        { name: '1080p60', value: new Uint8Array([2]) },
-        { name: '1080p50', value: new Uint8Array([3]) },
-        { name: '1440p60', value: new Uint8Array([4]) },
-        { name: '1440p50', value: new Uint8Array([5]) },
-        { name: '1080p100', value: new Uint8Array([6]) },
-        { name: '1440p100', value: new Uint8Array([7]) },
-        { name: '1080p120', value: new Uint8Array([8]) },
-        { name: '1440p120', value: new Uint8Array([9]) },
-        { name: '480p60', value: new Uint8Array([13]) },
-        { name: 'Custom 1', value: new Uint8Array([69]) },
-        { name: 'Custom 2', value: new Uint8Array([70]) },
-        { name: 'Custom 3', value: new Uint8Array([71]) },
-        { name: 'Custom 4', value: new Uint8Array([72]) },
-      ],
-    }),
-    new RetroTinkSetting({
-      name: 'output.transmitter.hdr',
-      desc: 'HDMI Output -> Transmitter -> HDR',
-      byteRanges: [{ address: 0x2d0, length: 1 }],
-      type: DataType.ENUM,
-      enums: [
-        { name: 'Off', value: new Uint8Array([0]) },
-        { name: 'HDR10 [8-bit]', value: new Uint8Array([1]) },
-        { name: 'HLG [8-bit]', value: new Uint8Array([2]) },
-      ],
-    }),
-    new RetroTinkSetting({
-      name: 'output.transmitter.colorimetry',
-      desc: 'HDMI Output -> Transmitter -> Colorimetry',
-      byteRanges: [{ address: 0x1ec8, length: 1 }],
-      type: DataType.ENUM,
-      enums: [
-        { name: 'Auto-Rec.709', value: new Uint8Array([0]) },
-        { name: 'Rec.709', value: new Uint8Array([1]) },
-        { name: 'Rec.2020', value: new Uint8Array([2]) },
-        { name: 'Adobe RGB', value: new Uint8Array([3]) },
-        { name: 'Display-P3', value: new Uint8Array([4]) },
-      ],
-    }),
-    new RetroTinkSetting({
-      name: 'output.transmitter.rgb_range',
-      desc: 'HDMI Output -> Transmitter -> RGB Range',
-      byteRanges: [{ address: 0x1f08, length: 1 }],
-      type: DataType.ENUM,
-      enums: [
-        { name: 'Full', value: new Uint8Array([0]) },
-        { name: 'Limited', value: new Uint8Array([1]) },
-      ],
-    }),
-    new RetroTinkSetting({
-      name: 'output.transmitter.sync_lock',
-      desc: 'HDMI Output -> Transmitter -> Sync Lock',
-      byteRanges: [{ address: 0x2d8, length: 1 }],
-      type: DataType.ENUM,
-      enums: [
-        { name: 'Triple Buffer', value: new Uint8Array([0]) },
-        { name: 'Gen Lock', value: new Uint8Array([1]) },
-        { name: 'Frame Lock', value: new Uint8Array([2]) },
-      ],
-    }),
-    new RetroTinkSetting({
-      name: 'output.transmitter.vrr',
-      desc: 'HDMI Output -> Transmitter -> VRR',
-      byteRanges: [{ address: 0x2dc, length: 1 }],
-      type: DataType.ENUM,
-      enums: [
-        { name: 'Off', value: new Uint8Array([0]) },
-        { name: 'FreeSync', value: new Uint8Array([1]) },
-        { name: 'VESA', value: new Uint8Array([2]) },
-      ],
-    }),
-    new RetroTinkSetting({
-      name: 'output.transmitter.deep_color',
-      desc: 'HDMI Output -> Transmitter -> Deep Color',
-      byteRanges: [{ address: 0x2d4, length: 1 }],
-      type: DataType.BIT,
-    }),
-  ]);
+  private static _settings: RetroTinkSettings = RetroTinkSettingsVersion['1.4.2'];
 
   private constructor(bytes: Uint8Array) {
     this._bytes = bytes;
@@ -190,7 +49,7 @@ export default class RetroTinkProfile {
     );
   }
 
-  static get(key: string): RetroTinkSetting {
+  static get<T extends RetroTinkSettingName>(key: T): RetroTinkSetting {
     return RetroTinkProfile._settings.get(key);
   }
 
@@ -209,7 +68,7 @@ export default class RetroTinkProfile {
     this._bytes = new Uint8Array(byte_array);
   }
 
-  private _setValueWithPrimitive(settingsKey: string, val: string | number | boolean): void {
+  private _setValueWithPrimitive<T extends RetroTinkSettingName>(settingsKey: T, val: string | number | boolean): void {
     if (!RetroTinkProfile._settings.has(settingsKey)) throw new SettingNotSupportedError(settingsKey);
     const setting = this.getValue(settingsKey);
     setting.set(val);
@@ -232,7 +91,7 @@ export default class RetroTinkProfile {
     target.setValue(source);
   }
 
-  private static matchesAnyScope(key: string, scopes: ProfileScope[]): boolean {
+  private static matchesAnyScope<T extends RetroTinkSettingPath>(key: T, scopes: ProfileScope<T>[]): boolean {
     return scopes.some((scope) => {
       if (typeof scope === 'string') return key.startsWith(scope);
       if (scope instanceof RegExp) return scope.test(key);
@@ -244,7 +103,7 @@ export default class RetroTinkProfile {
     return Array.from(RetroTinkProfile._settings).map(([, s]) => s.name);
   }
 
-  getValues(...scopes: ProfileScope[]): RetroTinkSettingsValues {
+  getValues<T extends RetroTinkSettingPath>(...scopes: ProfileScope<T>[]): RetroTinkSettingsValues {
     const filterScope = scopes.length == 0 ? [() => true] : scopes;
     return new RetroTinkSettingsValues(
       Array.from(RetroTinkProfile._settings, ([, s]) => new RetroTinkSettingValue(s, this.sliceBytes(s))).filter((s) =>
@@ -253,7 +112,7 @@ export default class RetroTinkProfile {
     );
   }
 
-  getValue(key: string): RetroTinkSettingValue {
+  getValue<T extends RetroTinkSettingName>(key: T): RetroTinkSettingValue {
     const setting = RetroTinkProfile.get(key);
     return new RetroTinkSettingValue(setting, this.sliceBytes(setting));
   }
@@ -275,10 +134,10 @@ export default class RetroTinkProfile {
   }
 
   setValue(setting: RetroTinkSettingValue): void;
-  setValue(a: string, b: string | number | boolean): void;
+  setValue<T extends RetroTinkSettingName>(a: T, b: string | number | boolean): void;
   setValue(a: unknown, b?: string | number | boolean): void {
     if (typeof a === 'string' && (typeof b === 'number' || typeof b === 'string' || typeof b === 'boolean')) {
-      return this._setValueWithPrimitive(a, b);
+      return this._setValueWithPrimitive(a as RetroTinkSettingName, b);
     } else if (a instanceof RetroTinkSettingValue) {
       return this._setValueWithInstance(a);
     }
@@ -292,7 +151,7 @@ export default class RetroTinkProfile {
     try {
       const parsedObject = JSON.parse(json);
       for (const setting of flattenObject(parsedObject)) {
-        this.setValue(setting.name, setting.value);
+        this.setValue(setting.name as RetroTinkSettingName, setting.value);
       }
     } catch (err) {
       throw new SettingDeserializationError(err);
@@ -322,7 +181,7 @@ export default class RetroTinkProfile {
         RetroTinkProfile.mergeSettingValue(newProfile, source);
       } else {
         for (const setting of flattenObject(source)) {
-          newProfile.setValue(setting.name, setting.value);
+          newProfile.setValue(setting.name as RetroTinkSettingName, setting.value);
         }
       }
     }
