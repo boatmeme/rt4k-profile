@@ -16,13 +16,6 @@ import { flattenObject } from '../utils/ObjectUtils';
 
 type ProfileScope = string | RegExp | ((key: string) => boolean);
 
-export class RetroTinkScopedProfile {
-  constructor(
-    public profile: RetroTinkProfile,
-    public scopes: ProfileScope[],
-  ) {}
-}
-
 export default class RetroTinkProfile {
   private _bytes: Uint8Array;
   private static _settings: RetroTinkSettings = new RetroTinkSettings([
@@ -229,14 +222,6 @@ export default class RetroTinkProfile {
     }
   }
 
-  private static mergeScopedSettings(target: RetroTinkProfile, source: RetroTinkProfile, scopes: ProfileScope[]): void {
-    for (const [key, value] of source.getValues()) {
-      if (RetroTinkProfile.matchesAnyScope(key, scopes)) {
-        target.setValue(value);
-      }
-    }
-  }
-
   private static mergeSettingsValues(target: RetroTinkProfile, source: RetroTinkSettingsValues): void {
     for (const value of source.values()) {
       target.setValue(value);
@@ -321,7 +306,6 @@ export default class RetroTinkProfile {
   merge(
     ...sources: (
       | RetroTinkProfile
-      | RetroTinkScopedProfile
       | RetroTinkSettingsValues
       | RetroTinkSettingValue
       | RetroTinkSettingsValuesPlainObject
@@ -332,8 +316,6 @@ export default class RetroTinkProfile {
     for (const source of sources) {
       if (source instanceof RetroTinkProfile) {
         RetroTinkProfile.mergeAllSettings(newProfile, source);
-      } else if (source instanceof RetroTinkScopedProfile) {
-        RetroTinkProfile.mergeScopedSettings(newProfile, source.profile, source.scopes);
       } else if (source instanceof RetroTinkSettingsValues) {
         RetroTinkProfile.mergeSettingsValues(newProfile, source);
       } else if (source instanceof RetroTinkSettingValue) {

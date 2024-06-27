@@ -5,7 +5,7 @@ import {
   SettingNotSupportedError,
 } from '../exceptions/RetroTinkProfileException';
 import { RetroTinkSetting, RetroTinkSettingValue, RetroTinkSettingsValues } from '../settings/RetroTinkSetting';
-import RetroTinkProfile, { RetroTinkScopedProfile } from './RetroTinkProfile';
+import RetroTinkProfile from './RetroTinkProfile';
 import { bad_setting_json_str, invalid_json, pretty_json_str, unpretty_json_str } from './__fixtures__/json_profiles';
 
 describe('RetroTinkProfile', () => {
@@ -175,33 +175,6 @@ describe('RetroTinkProfile', () => {
       expect(p4.getValue('input').asString()).toEqual('HDMI');
       expect(p1.getValue('input').asString()).toEqual('HDMI');
     });
-    test('should merge values from 2 or more RetroTinkScopedProfile instances into a new profile instance', async () => {
-      const p1 = await RetroTinkProfile.build();
-      p1.setValue('output.resolution', '1440p60');
-      const p2 = p1.clone();
-      p2.setValue('input', 'Front|S-Video');
-      const p3 = p1.clone();
-      p3.setValue('output.transmitter.colorimetry', 3);
-      const p4 = p1.clone();
-      p4.setValue('output.transmitter.colorimetry', 0);
-      p4.setValue('output.transmitter.hdr', 1);
-      const p5 = p1.merge(
-        new RetroTinkScopedProfile(p2, ['input']),
-        new RetroTinkScopedProfile(p3, [/output\.transmitter/]),
-        new RetroTinkScopedProfile(p4, [(n) => n.startsWith('output.transmitter.hdr')]),
-        new RetroTinkScopedProfile(p4, ['something-invalid']),
-      );
-      expect(p5.getValue('output.resolution').asString()).toEqual(p1.getValue('output.resolution').asString());
-      expect(p5.getValue('output.transmitter.colorimetry').asString()).toEqual(
-        p3.getValue('output.transmitter.colorimetry').asString(),
-      );
-      expect(p5.getValue('output.transmitter.hdr').asString()).toEqual(
-        p4.getValue('output.transmitter.hdr').asString(),
-      );
-      expect(p5.getValue('input').asString()).toEqual(p2.getValue('input').asString());
-      expect(p3.getValue('input').asString()).toEqual('HDMI');
-      expect(p1.getValue('input').asString()).toEqual('HDMI');
-    });
     test('should merge values from 2 or more RetroTinkSettingsValues instances into a new profile instance', async () => {
       const p1 = await RetroTinkProfile.build();
       p1.setValue('output.resolution', '1440p60');
@@ -244,8 +217,39 @@ describe('RetroTinkProfile', () => {
 
       const p5 = p1.merge(
         p2.getValues('input').asPlainObject(),
-        p3.getValues('output').asPlainObject(),
+        p3.getValues(/^output.*/).asPlainObject(),
         p4.getValues('output.transmitter.hdr').asPlainObject(),
+      );
+
+      expect(p5.getValue('output.resolution').asString()).toEqual(p4.getValue('output.resolution').asString());
+      expect(p5.getValue('output.transmitter.colorimetry').asString()).toEqual(
+        p3.getValue('output.transmitter.colorimetry').asString(),
+      );
+      expect(p5.getValue('output.transmitter.hdr').asString()).toEqual(
+        p4.getValue('output.transmitter.hdr').asString(),
+      );
+      expect(p5.getValue('input').asString()).toEqual(p2.getValue('input').asString());
+      expect(p3.getValue('input').asString()).toEqual('Front|Composite');
+      expect(p1.getValue('input').asString()).toEqual('HDMI');
+    });
+    test('should merge values from 2 or more RetroTinkSettingValue instances into a new profile instance', async () => {
+      const p1 = await RetroTinkProfile.build();
+      p1.setValue('output.resolution', '1440p60');
+      const p2 = p1.clone();
+      p2.setValue('input', 'Front|S-Video');
+      p2.setValue('output.resolution', '1080p100');
+      const p3 = p1.clone();
+      p3.setValue('output.transmitter.colorimetry', 3);
+      p3.setValue('input', 'Front|Composite');
+      p3.setValue('output.transmitter.hdr', 2);
+      const p4 = p1.clone();
+      p4.setValue('output.transmitter.hdr', 1);
+      p4.setValue('output.transmitter.colorimetry', 2);
+
+      const p5 = p1.merge(
+        p2.getValue('input'),
+        p3.getValue('output.transmitter.colorimetry'),
+        p4.getValue('output.transmitter.hdr'),
       );
 
       expect(p5.getValue('output.resolution').asString()).toEqual(p4.getValue('output.resolution').asString());
