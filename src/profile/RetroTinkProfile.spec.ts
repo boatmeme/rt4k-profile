@@ -8,6 +8,24 @@ import { RetroTinkSetting, RetroTinkSettingValue, RetroTinkSettingsValues } from
 import { RetroTinkSettingName, RetroTinkSettingPath } from '../settings/Schema';
 import RetroTinkProfile from './RetroTinkProfile';
 import { bad_setting_json_str, invalid_json, pretty_json_str, unpretty_json_str } from './__fixtures__/json_profiles';
+import { writeFileSync } from 'fs';
+import { writeFile } from 'fs/promises';
+import { readFileBinarySync } from '../utils/FileUtils';
+
+jest.mock('fs', () => ({
+  ...jest.requireActual('fs'),
+  writeFileSync: jest.fn(),
+}));
+jest.mock('fs/promises', () => ({
+  ...jest.requireActual('fs/promises'),
+  writeFile: jest.fn(),
+}));
+
+let profile: RetroTinkProfile;
+const testBytes = readFileBinarySync(`${__dirname}/__fixtures__/mask-enabled-strength-10.rt4`);
+const testFilePath = '/path/to/test/file.rt4';
+const mockedWriteFile = writeFile as jest.MockedFunction<typeof writeFile>;
+const mockedWriteFileSync = writeFileSync as jest.MockedFunction<typeof writeFileSync>;
 
 describe('RetroTinkProfile', () => {
   describe('build()', () => {
@@ -263,6 +281,61 @@ describe('RetroTinkProfile', () => {
       expect(p5.getValue('input').asString()).toEqual(p2.getValue('input').asString());
       expect(p3.getValue('input').asString()).toEqual('Front|Composite');
       expect(p1.getValue('input').asString()).toEqual('HDMI');
+    });
+  });
+  describe('save', () => {
+    beforeEach(() => {
+      // Reset mocks before each test
+      jest.clearAllMocks();
+      profile = RetroTinkProfile.fromBytes(testBytes);
+    });
+    it('should save the profile asynchronously', async () => {
+      mockedWriteFile.mockImplementation(() => {
+        return Promise.resolve();
+      });
+
+      await profile.save(testFilePath);
+      expect(mockedWriteFile).toHaveBeenCalledWith(testFilePath, testBytes);
+    });
+
+    it('should throw ProfileNotFoundError when file path is invalid', async () => {
+      mockedWriteFile.mockRejectedValue({ code: 'ENOENT' } as never);
+      await expect(profile.save(testFilePath)).rejects.toThrow(ProfileNotFoundError);
+    });
+
+    it('should throw other errors as-is', async () => {
+      mockedWriteFile.mockRejectedValue(new Error('As Is') as never);
+
+      await expect(profile.save(testFilePath)).rejects.toThrow('As Is');
+    });
+  });
+
+  describe('saveSync', () => {
+    beforeEach(() => {
+      // Reset mocks before each test
+      jest.clearAllMocks();
+      profile = RetroTinkProfile.fromBytes(testBytes);
+    });
+    it('should save the profile synchronously', () => {
+      mockedWriteFileSync.mockImplementation(() => true);
+      profile.saveSync(testFilePath);
+      expect(mockedWriteFileSync).toHaveBeenCalledWith(testFilePath, testBytes);
+    });
+
+    it('should throw ProfileNotFoundError when file path is invalid', () => {
+      mockedWriteFileSync.mockImplementation(() => {
+        throw { code: 'ENOENT' };
+      });
+
+      expect(() => profile.saveSync(testFilePath)).toThrow(ProfileNotFoundError);
+    });
+
+    it('should throw other errors as-is', () => {
+      mockedWriteFileSync.mockImplementation(() => {
+        throw new Error('As Is');
+      });
+
+      expect(() => profile.saveSync(testFilePath)).toThrow('As Is');
     });
   });
 });
