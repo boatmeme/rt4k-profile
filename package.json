@@ -1,6 +1,6 @@
 {
   "name": "rt4k-profile",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "RetroTINK-4k Profile Codec",
   "main": "dist/index.js",
   "exports": {

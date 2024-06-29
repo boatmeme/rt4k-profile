@@ -5,7 +5,7 @@ import {
 } from '../exceptions/RetroTinkProfileException';
 import { addValueToObject, deepMerge } from '../utils/ObjectUtils';
 import { DataType } from './DataType';
-import { RetroTinkSettingName, RetroTinkSettingPath } from './Schema';
+import { RetroTinkSettingName } from './Schema';
 
 interface ByteRange {
   address: number;
@@ -13,7 +13,7 @@ interface ByteRange {
 }
 
 interface RetroTinkSettingParams {
-  name: RetroTinkSettingPath;
+  name: RetroTinkSettingName;
   desc: string;
   byteRanges: ByteRange[];
   type: DataType;
@@ -26,7 +26,7 @@ interface RetroTinkEnumValue {
 }
 
 export class RetroTinkSetting {
-  name: RetroTinkSettingPath;
+  name: RetroTinkSettingName;
   desc: string;
   byteRanges: ByteRange[];
   type: DataType;
@@ -41,6 +41,25 @@ export class RetroTinkSetting {
   }
   length(): number {
     return this.byteRanges.reduce((acc, r) => acc + r.length, 0);
+  }
+  validValues(): string[] {
+    switch (this.type) {
+      case DataType.ENUM: {
+        return this.enums.map((s) => s.name);
+      }
+      case DataType.INT: {
+        return ['number between 0 and 255'];
+      }
+      case DataType.SIGNED_INT: {
+        return ['number between -128 and 128'];
+      }
+      case DataType.BIT: {
+        return ['boolean', 'number between 0 and 1'];
+      }
+      case DataType.STR: {
+        return ['string'];
+      }
+    }
   }
 }
 
