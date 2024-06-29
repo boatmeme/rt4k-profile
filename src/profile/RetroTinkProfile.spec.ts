@@ -8,8 +8,23 @@ import { RetroTinkSetting, RetroTinkSettingValue, RetroTinkSettingsValues } from
 import { RetroTinkSettingName, RetroTinkSettingPath } from '../settings/Schema';
 import RetroTinkProfile from './RetroTinkProfile';
 import { bad_setting_json_str, invalid_json, pretty_json_str, unpretty_json_str } from './__fixtures__/json_profiles';
+import { readFileBinarySync, writeFileBinary, writeFileBinarySync } from '../utils/FileUtils';
+
+jest.mock('../utils/FileUtils', () => ({
+  ...jest.requireActual('../utils/FileUtils'),
+  writeFileBinary: jest.fn(),
+  writeFileBinarySync: jest.fn(),
+}));
+
+const testBytes = readFileBinarySync(`${__dirname}/__fixtures__/mask-enabled-strength-10.rt4`);
+const testFilePath = '/path/to/test/file.rt4';
+const opts = { createDirectoryIfNotExist: true };
 
 describe('RetroTinkProfile', () => {
+  beforeEach(() => {
+    // Reset mocks before each test
+    jest.clearAllMocks();
+  });
   describe('build()', () => {
     test('should build a Profile using the default profile', async () => {
       const profile = await RetroTinkProfile.build();
@@ -263,6 +278,39 @@ describe('RetroTinkProfile', () => {
       expect(p5.getValue('input').asString()).toEqual(p2.getValue('input').asString());
       expect(p3.getValue('input').asString()).toEqual('Front|Composite');
       expect(p1.getValue('input').asString()).toEqual('HDMI');
+    });
+  });
+  describe('save', () => {
+    it('should save the profile asynchronously (default opts)', async () => {
+      const profile = RetroTinkProfile.fromBytes(testBytes);
+      (writeFileBinary as jest.Mock).mockImplementation(() => {
+        return Promise.resolve();
+      });
+
+      await profile.save(testFilePath);
+      expect(writeFileBinary).toHaveBeenCalledWith(testFilePath, testBytes, opts);
+    });
+    it('should save the profile asynchronously (specify opts)', async () => {
+      const profile = RetroTinkProfile.fromBytes(testBytes);
+      (writeFileBinary as jest.Mock).mockImplementation(() => {
+        return Promise.resolve();
+      });
+
+      await profile.save(testFilePath, { createDirectoryIfNotExist: false });
+      expect(writeFileBinary).toHaveBeenCalledWith(testFilePath, testBytes, { createDirectoryIfNotExist: false });
+    });
+  });
+
+  describe('saveSync', () => {
+    it('should save the profile synchronously (default opts)', () => {
+      const profile = RetroTinkProfile.fromBytes(testBytes);
+      profile.saveSync(testFilePath);
+      expect(writeFileBinarySync).toHaveBeenCalledWith(testFilePath, testBytes, opts);
+    });
+    it('should save the profile synchronously (specify opts)', () => {
+      const profile = RetroTinkProfile.fromBytes(testBytes);
+      profile.saveSync(testFilePath, { createDirectoryIfNotExist: false });
+      expect(writeFileBinarySync).toHaveBeenCalledWith(testFilePath, testBytes, { createDirectoryIfNotExist: false });
     });
   });
 });
