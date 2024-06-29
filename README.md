@@ -5,13 +5,13 @@ A Typescript Library for Reading and Writing RetroTINK-4k .rt4 Profiles
 
 ## Overview
 
-The [RetroTINK-4k](https://www.retrotink.com/product-page/retrotink-4k) is a video scaler primarily intended for processing signals from retro gaming consoles, enabling display at 4K resolution while maintaining the authentic visual experience. 
+The [RetroTINK-4k](https://www.retrotink.com/product-page/retrotink-4k) is a video scaler primarily intended for processing signals from retro gaming consoles, enabling display at 4K resolution while maintaining an authentic visual experience. 
 
-There is a well designed menu for manipulating settings and a profile system for persisting configurations of parameters such as input type, color settings, and resolution preferences, allowing users to easily load and apply them for consistent performance on your equipment, across different consoles.
+It features a well-designed, on-screen menu for manipulating settings and a profile system for persisting configurations of parameters such as input type, color settings, and resolution preferences, allowing users to tweak, save and apply them for consistent performance on their equipment, across different consoles.
 
-The profiles are stored on an SD Card and can be conveniently copied, renamed and organized on a computer, but they are stored in a binary format that isn't directly editable by humans. This means that - as nice as the on-screen menus are - it can be tedious to, for instance, apply a specific set of CRT scanline / mask settings to a large set of pre-existing profiles.
+The profiles are stored on an SD Card and can be copied, renamed and organized on a computer, but they are stored in a binary format that isn't easily editable by hand. This means that - as nice as the remote control and on-screen menus are - it can be tedious to, for instance, apply a specific set of CRT scanline / mask settings to a large set of pre-existing profiles.
 
-`rt4k-profile` was built to fill that need, providing a convenient API for programmatically manipulating RetroTINK-4k profiles. Although it is a work-in-progress, it is designed to be immediately functional and is continuously developed to support more settings.
+`rt4k-profile` was built to fill that need, providing a convenient API for programmatically manipulating RetroTINK-4k profiles. Although it is a work-in-progress, it is designed to be immediately functional and is under continuous development to support more settings.
 
 ---
 ## Prerequisites
@@ -87,7 +87,7 @@ outputProfile.saveSync('/path/to/my/new_snes_profile.rt4');
 
 ### See [`./examples`](./examples) for more
 
-## API
+## API Documentation
 
 [**TODO**]
 
@@ -115,7 +115,7 @@ outputProfile.saveSync('/path/to/my/new_snes_profile.rt4');
 
 ## Contributing
 
-Right now, this is the project of a single developer and I'm limited to the amount of time I can spend reverse engineering the binary .rt4 profile format. Feel free to open an issue requesting specific settings, or better yet, contribute directly:
+Right now, this is the side-project of a single developer and I'm limited to the amount of time I can spend reverse engineering the binary .rt4 profile format. Feel free to open an issue requesting specific settings, or better yet, contribute directly:
 
 1. Fork repo
 2. Add / modify tests
