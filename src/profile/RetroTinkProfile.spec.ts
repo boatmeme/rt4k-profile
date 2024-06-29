@@ -166,6 +166,17 @@ describe('RetroTinkProfile', () => {
       expect(strength?.asInt()).toEqual(-6);
       expect(strength.value).toEqual(new Uint8Array([250]));
     });
+    test('should be able to set value with a Plain Javascript Object', async () => {
+      const profile = await RetroTinkProfile.build();
+      const value = {
+        output: {
+          resolution: '1440p120',
+        },
+      };
+      profile.setValue(value);
+      const testVal = profile.getValue('output.resolution');
+      expect(testVal.asString()).toEqual('1440p120');
+    });
     test('unsupported setting should throw ', async () => {
       const profile = await RetroTinkProfile.build();
       const setting = new RetroTinkSettingValue(
@@ -311,6 +322,13 @@ describe('RetroTinkProfile', () => {
       const profile = RetroTinkProfile.fromBytes(testBytes);
       profile.saveSync(testFilePath, { createDirectoryIfNotExist: false });
       expect(writeFileBinarySync).toHaveBeenCalledWith(testFilePath, testBytes, { createDirectoryIfNotExist: false });
+    });
+  });
+
+  describe('toString()', () => {
+    it('should return the Plain Object representation, stringified, prettified', async () => {
+      const profile = await RetroTinkProfile.build();
+      expect(profile.toString()).toEqual(profile.serializeValues(true));
     });
   });
 });

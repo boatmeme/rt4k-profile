@@ -109,7 +109,7 @@ export default class RetroTinkProfile {
     return Array.from(RetroTinkProfile._settings).map(([, s]) => s.name);
   }
 
-  getValues<T extends RetroTinkSettingPath>(...scopes: ProfileScope<T>[]): RetroTinkSettingsValues {
+  getValues(...scopes: ProfileScope<RetroTinkSettingPath>[]): RetroTinkSettingsValues {
     const filterScope = scopes.length == 0 ? [() => true] : scopes;
     return new RetroTinkSettingsValues(
       Array.from(RetroTinkProfile._settings, ([, s]) => new RetroTinkSettingValue(s, this.sliceBytes(s))).filter((s) =>
@@ -140,12 +140,17 @@ export default class RetroTinkProfile {
   }
 
   setValue(setting: RetroTinkSettingValue): void;
+  setValue(obj: RetroTinkSettingsValuesPlainObject): void;
   setValue<T extends RetroTinkSettingName>(a: T, b: string | number | boolean): void;
   setValue(a: unknown, b?: string | number | boolean): void {
     if (typeof a === 'string' && (typeof b === 'number' || typeof b === 'string' || typeof b === 'boolean')) {
       return this._setValueWithPrimitive(a as RetroTinkSettingName, b);
     } else if (a instanceof RetroTinkSettingValue) {
       return this._setValueWithInstance(a);
+    } else {
+      for (const setting of flattenObject(a as RetroTinkSettingsValuesPlainObject)) {
+        this.setValue(setting.name as RetroTinkSettingName, setting.value);
+      }
     }
   }
 
@@ -201,5 +206,9 @@ export default class RetroTinkProfile {
 
   saveSync(filePath: string, opts: WriteFileOptions = { createDirectoryIfNotExist: true }) {
     return writeFileBinarySync(filePath, this._bytes, opts);
+  }
+
+  toString(): string {
+    return this.serializeValues(true);
   }
 }

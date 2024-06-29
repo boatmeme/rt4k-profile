@@ -6,11 +6,84 @@ import {
   RetroTinkSettingsValues,
 } from '../settings/RetroTinkSetting';
 import { DataType } from './DataType';
-import { RetroTinkSettingPath } from './Schema';
+import { RetroTinkSettingName } from './Schema';
 
-const name = 'some.retrotink.setting' as RetroTinkSettingPath;
+const name = 'some.retrotink.setting' as RetroTinkSettingName;
 
 describe('RetroTinkSetting', () => {
+  describe('validValues()', () => {
+    describe('DataType.ENUM', () => {
+      it('should return the list of valid values', () => {
+        const setting = new RetroTinkSetting({
+          name: 'input',
+          desc: 'Input Setting',
+          type: DataType.ENUM,
+          byteRanges: [],
+          enums: [
+            { name: 'val1', value: new Uint8Array() },
+            { name: 'val2', value: new Uint8Array() },
+          ],
+        });
+        const values = setting.validValues();
+        expect(values.length).toBe(2);
+        expect(values).toContain('val1');
+        expect(values).toContain('val2');
+      });
+    });
+    describe('DataType.INT', () => {
+      it('should return the list of valid values', () => {
+        const setting = new RetroTinkSetting({
+          name: 'input',
+          desc: 'Input Setting',
+          type: DataType.INT,
+          byteRanges: [],
+        });
+        const values = setting.validValues();
+        expect(values.length).toBe(1);
+        expect(values).toContain('number between 0 and 255');
+      });
+    });
+    describe('DataType.BIT', () => {
+      it('should return the list of valid values', () => {
+        const setting = new RetroTinkSetting({
+          name: 'input',
+          desc: 'Input Setting',
+          type: DataType.BIT,
+          byteRanges: [],
+        });
+        const values = setting.validValues();
+        expect(values.length).toBe(2);
+        expect(values).toContain('number between 0 and 1');
+        expect(values).toContain('boolean');
+      });
+    });
+    describe('DataType.SIGNED_INT', () => {
+      it('should return the list of valid values', () => {
+        const setting = new RetroTinkSetting({
+          name: 'input',
+          desc: 'Input Setting',
+          type: DataType.SIGNED_INT,
+          byteRanges: [],
+        });
+        const values = setting.validValues();
+        expect(values.length).toBe(1);
+        expect(values).toContain('number between -128 and 128');
+      });
+    });
+    describe('DataType.STR', () => {
+      it('should return the list of valid values', () => {
+        const setting = new RetroTinkSetting({
+          name: 'input',
+          desc: 'Input Setting',
+          type: DataType.STR,
+          byteRanges: [],
+        });
+        const values = setting.validValues();
+        expect(values.length).toBe(1);
+        expect(values).toContain('string');
+      });
+    });
+  });
   describe('RetroTinkSettingsValues', () => {
     describe('constructor', () => {
       it('should initialize as empty Map', () => {
@@ -24,7 +97,7 @@ describe('RetroTinkSetting', () => {
         const settings = new RetroTinkSettingsValues();
         const v = new RetroTinkSettingValue(
           new RetroTinkSetting({
-            name: 'some.retrotink.sibling_1' as RetroTinkSettingPath,
+            name: 'some.retrotink.sibling_1' as RetroTinkSettingName,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.INT,
@@ -34,7 +107,7 @@ describe('RetroTinkSetting', () => {
         settings.set(v.name, v);
         const v2 = new RetroTinkSettingValue(
           new RetroTinkSetting({
-            name: 'some.retrotink.sibling_2' as RetroTinkSettingPath,
+            name: 'some.retrotink.sibling_2' as RetroTinkSettingName,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x000d, length: 1 }],
             type: DataType.STR,
@@ -44,7 +117,7 @@ describe('RetroTinkSetting', () => {
         settings.set(v2.name, v2);
         const v3 = new RetroTinkSettingValue(
           new RetroTinkSetting({
-            name: 'some.uncle' as RetroTinkSettingPath,
+            name: 'some.uncle' as RetroTinkSettingName,
             desc: 'Any Setting',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.ENUM,
