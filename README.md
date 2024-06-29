@@ -101,16 +101,16 @@ outputProfile.saveSync('/path/to/my/new_snes_profile.rt4');
 
 - Initial release
 - Added support for the following settings:
-  - `advanced.effects.mask.enabled`,
-  - `advanced.effects.mask.strength`,
-  - `advanced.effects.mask.path`,
-  - `input`,
-  - `output.resolution`,
-  - `output.transmitter.hdr`,
-  - `output.transmitter.colorimetry`,
-  - `output.transmitter.rgb_range`,
-  - `output.transmitter.sync_lock`,
-  - `output.transmitter.vrr`,
+  - `advanced.effects.mask.enabled`
+  - `advanced.effects.mask.strength`
+  - `advanced.effects.mask.path`
+  - `input`
+  - `output.resolution`
+  - `output.transmitter.hdr`
+  - `output.transmitter.colorimetry`
+  - `output.transmitter.rgb_range`
+  - `output.transmitter.sync_lock`
+  - `output.transmitter.vrr`
   - `output.transmitter.deep_color`
 
 ## Contributing
