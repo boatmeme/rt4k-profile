@@ -12,6 +12,10 @@
   },
   "author": "Jonathan Griggs <jonathan.griggs@gmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boatmeme/rt4k-profile"
+  },
   "scripts": {
     "build": "npm run clean && tsc && npm run copy-files",
     "clean": "rimraf dist/",
