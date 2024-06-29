@@ -1,4 +1,10 @@
-import { readFileBinary, readFileBinarySync, writeFileBinary, writeFileBinarySync } from '../utils/FileUtils';
+import {
+  readFileBinary,
+  readFileBinarySync,
+  writeFileBinary,
+  writeFileBinarySync,
+  WriteFileOptions,
+} from '../utils/FileUtils';
 import {
   RetroTinkSetting,
   RetroTinkSettingValue,
@@ -189,11 +195,11 @@ export default class RetroTinkProfile {
     return newProfile;
   }
 
-  async save(filePath: string) {
-    return writeFileBinary(filePath, this._bytes);
+  async save(filePath: string, opts: WriteFileOptions = { createDirectoryIfNotExist: true }) {
+    return writeFileBinary(filePath, this._bytes, opts);
   }
 
-  saveSync(filePath: string) {
-    return writeFileBinarySync(filePath, this._bytes);
+  saveSync(filePath: string, opts: WriteFileOptions = { createDirectoryIfNotExist: true }) {
+    return writeFileBinarySync(filePath, this._bytes, opts);
   }
 }

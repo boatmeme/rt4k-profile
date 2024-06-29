@@ -1,19 +1,22 @@
 import { readFileBinary, readFileBinarySync, writeFileBinary, writeFileBinarySync } from './FileUtils';
-import { readFile, writeFile } from 'fs/promises';
+import { readFile, writeFile, mkdir } from 'fs/promises';
 import { ProfileNotFoundError } from '../exceptions/RetroTinkProfileException';
-import { readFileSync, writeFileSync } from 'fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'fs';
 
 jest.mock('fs/promises', () => ({
   readFile: jest.fn(),
   writeFile: jest.fn(),
+  mkdir: jest.fn(),
 }));
 jest.mock('fs', () => ({
   readFileSync: jest.fn(),
   writeFileSync: jest.fn(),
+  mkdirSync: jest.fn(),
 }));
 
 describe('FileUtils', () => {
-  const filePath = 'some/file/path';
+  const fileDir = 'some/file/path';
+  const filePath = `${fileDir}/profile.rt4`;
   const someBytes = new Uint8Array([1, 2, 3]);
   afterEach(() => {
     jest.clearAllMocks();
@@ -65,10 +68,15 @@ describe('FileUtils', () => {
     });
   });
   describe('writeFileBinary', () => {
-    it('should call fs.promises.writeFile', async () => {
-      (writeFile as jest.Mock).mockImplementation(() => true);
+    it('should call fs.promises.writeFile and fs.promises.mkdir (default)', async () => {
       await writeFileBinary(filePath, someBytes);
       expect(writeFile).toHaveBeenCalledWith(filePath, someBytes);
+      expect(mkdir).toHaveBeenCalledWith(fileDir, { recursive: true });
+    });
+    it('should call fs.promises.writeFile, but not fs.promises.mkdir (optional)', async () => {
+      await writeFileBinary(filePath, someBytes, { createDirectoryIfNotExist: false });
+      expect(writeFile).toHaveBeenCalledWith(filePath, someBytes);
+      expect(mkdir).not.toHaveBeenCalled();
     });
     it('should rethrow the error if an error other than ENOENT occurs', async () => {
       const error = new Error('Some other error');
@@ -86,10 +94,15 @@ describe('FileUtils', () => {
     });
   });
   describe('writeFileBinarySync', () => {
-    it('should call fs.writeFileSync', async () => {
-      (writeFileSync as jest.Mock).mockImplementation(() => true);
+    it('should call fs.writeFileSync and fs.mkdirSync (default)', async () => {
       writeFileBinarySync(filePath, someBytes);
       expect(writeFileSync).toHaveBeenCalledWith(filePath, someBytes);
+      expect(mkdirSync).toHaveBeenCalledWith(fileDir, { recursive: true });
+    });
+    it('should call fs.writeFileSync, but not fs.mkdirSync (optional)', async () => {
+      writeFileBinarySync(filePath, someBytes, { createDirectoryIfNotExist: false });
+      expect(writeFileSync).toHaveBeenCalledWith(filePath, someBytes);
+      expect(mkdirSync).not.toHaveBeenCalled();
     });
     it('should rethrow the error if an error other than ENOENT occurs', () => {
       const error = new Error('Some other error');

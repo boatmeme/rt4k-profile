@@ -18,6 +18,7 @@ jest.mock('../utils/FileUtils', () => ({
 
 const testBytes = readFileBinarySync(`${__dirname}/__fixtures__/mask-enabled-strength-10.rt4`);
 const testFilePath = '/path/to/test/file.rt4';
+const opts = { createDirectoryIfNotExist: true };
 
 describe('RetroTinkProfile', () => {
   beforeEach(() => {
@@ -280,23 +281,36 @@ describe('RetroTinkProfile', () => {
     });
   });
   describe('save', () => {
-    it('should save the profile asynchronously', async () => {
+    it('should save the profile asynchronously (default opts)', async () => {
       const profile = RetroTinkProfile.fromBytes(testBytes);
       (writeFileBinary as jest.Mock).mockImplementation(() => {
         return Promise.resolve();
       });
 
       await profile.save(testFilePath);
-      expect(writeFileBinary).toHaveBeenCalledWith(testFilePath, testBytes);
+      expect(writeFileBinary).toHaveBeenCalledWith(testFilePath, testBytes, opts);
+    });
+    it('should save the profile asynchronously (specify opts)', async () => {
+      const profile = RetroTinkProfile.fromBytes(testBytes);
+      (writeFileBinary as jest.Mock).mockImplementation(() => {
+        return Promise.resolve();
+      });
+
+      await profile.save(testFilePath, { createDirectoryIfNotExist: false });
+      expect(writeFileBinary).toHaveBeenCalledWith(testFilePath, testBytes, { createDirectoryIfNotExist: false });
     });
   });
 
   describe('saveSync', () => {
-    it('should save the profile synchronously', () => {
-      (writeFileBinarySync as jest.Mock).mockImplementation(() => true);
+    it('should save the profile synchronously (default opts)', () => {
       const profile = RetroTinkProfile.fromBytes(testBytes);
       profile.saveSync(testFilePath);
-      expect(writeFileBinarySync).toHaveBeenCalledWith(testFilePath, testBytes);
+      expect(writeFileBinarySync).toHaveBeenCalledWith(testFilePath, testBytes, opts);
+    });
+    it('should save the profile synchronously (specify opts)', () => {
+      const profile = RetroTinkProfile.fromBytes(testBytes);
+      profile.saveSync(testFilePath, { createDirectoryIfNotExist: false });
+      expect(writeFileBinarySync).toHaveBeenCalledWith(testFilePath, testBytes, { createDirectoryIfNotExist: false });
     });
   });
 });
