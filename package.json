@@ -1,6 +1,6 @@
 {
   "name": "rt4k-profile",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A Typescript Library for Reading and Writing RetroTINK-4k .rt4 Profiles",
   "main": "dist/index.js",
   "exports": {
