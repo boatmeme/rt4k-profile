@@ -95,13 +95,13 @@ export const RetroTinkSettingsVersion = {
     }),
     new RetroTinkSetting({
       name: 'advanced.system.osd_firmware.banner_image.load_banner',
-      desc: 'Advanced -> OSD/Firmware -> On Screen Display -> Load Banner',
+      desc: 'Advanced -> System -> OSD/Firmware -> On Screen Display -> Load Banner',
       byteRanges: [{ address: 0x1644, length: 256 }],
       type: DataType.STR,
     }),
     new RetroTinkSetting({
       name: 'advanced.system.osd_firmware.on_screen_display.position',
-      desc: 'Advanced -> OSD/Firmware -> On Screen Display -> Position',
+      desc: 'Advanced -> System -> OSD/Firmware -> On Screen Display -> Position',
       byteRanges: [{ address: 0x184c, length: 1 }],
       type: DataType.ENUM,
       enums: [
@@ -112,7 +112,7 @@ export const RetroTinkSettingsVersion = {
     }),
     new RetroTinkSetting({
       name: 'advanced.system.osd_firmware.on_screen_display.auto_off',
-      desc: 'Advanced -> OSD/Firmware -> On Screen Display -> Auto-Off',
+      desc: 'Advanced -> System -> OSD/Firmware -> On Screen Display -> Auto-Off',
       byteRanges: [{ address: 0x1848, length: 1 }],
       type: DataType.ENUM,
       enums: [
@@ -131,13 +131,13 @@ export const RetroTinkSettingsVersion = {
     }),
     new RetroTinkSetting({
       name: 'advanced.system.osd_firmware.on_screen_display.hide_input_res',
-      desc: 'Advanced -> OSD/Firmware -> On Screen Display -> Hide Input Res.',
+      desc: 'Advanced -> System -> OSD/Firmware -> On Screen Display -> Hide Input Res.',
       byteRanges: [{ address: 0x1ef8, length: 1 }],
       type: DataType.BIT,
     }),
     new RetroTinkSetting({
       name: 'advanced.system.osd_firmware.on_screen_display.enable_debug_osd',
-      desc: 'Advanced -> OSD/Firmware -> On Screen Display -> Enable Debug OSD',
+      desc: 'Advanced -> System -> OSD/Firmware -> On Screen Display -> Enable Debug OSD',
       byteRanges: [{ address: 0x1854, length: 1 }],
       type: DataType.ENUM,
       enums: [
