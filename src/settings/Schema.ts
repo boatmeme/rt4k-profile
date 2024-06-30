@@ -51,6 +51,19 @@ export type RetroTinkSettingsSchema = {
         strength: number;
       };
     };
+    system: {
+      osd_firmware: {
+        banner_image: {
+          load_banner: string;
+        };
+        on_screen_display: {
+          position: string;
+          auto_off: string;
+          hide_input_res: boolean;
+          enable_debug_osd: string;
+        };
+      };
+    };
   };
 };
 
@@ -79,6 +92,61 @@ export const RetroTinkSettingsVersion = {
       desc: 'Advanced -> Processing -> Mask -> Path',
       byteRanges: [{ address: 0x0090, length: 256 }],
       type: DataType.STR,
+    }),
+    new RetroTinkSetting({
+      name: 'advanced.system.osd_firmware.banner_image.load_banner',
+      desc: 'Advanced -> OSD/Firmware -> On Screen Display -> Load Banner',
+      byteRanges: [{ address: 0x1644, length: 256 }],
+      type: DataType.STR,
+    }),
+    new RetroTinkSetting({
+      name: 'advanced.system.osd_firmware.on_screen_display.position',
+      desc: 'Advanced -> OSD/Firmware -> On Screen Display -> Position',
+      byteRanges: [{ address: 0x184c, length: 1 }],
+      type: DataType.ENUM,
+      enums: [
+        { name: 'Left', value: new Uint8Array([0]) },
+        { name: 'Center', value: new Uint8Array([1]) },
+        { name: 'Right', value: new Uint8Array([2]) },
+      ],
+    }),
+    new RetroTinkSetting({
+      name: 'advanced.system.osd_firmware.on_screen_display.auto_off',
+      desc: 'Advanced -> OSD/Firmware -> On Screen Display -> Auto-Off',
+      byteRanges: [{ address: 0x1848, length: 1 }],
+      type: DataType.ENUM,
+      enums: [
+        { name: 'Off', value: new Uint8Array([0]) },
+        { name: '10sec', value: new Uint8Array([1]) },
+        { name: '20sec', value: new Uint8Array([2]) },
+        { name: '30sec', value: new Uint8Array([3]) },
+        { name: '40sec', value: new Uint8Array([4]) },
+        { name: '50sec', value: new Uint8Array([5]) },
+        { name: '60sec', value: new Uint8Array([6]) },
+        { name: '70sec', value: new Uint8Array([7]) },
+        { name: '80sec', value: new Uint8Array([8]) },
+        { name: '90sec', value: new Uint8Array([9]) },
+        { name: '100sec', value: new Uint8Array([10]) },
+      ],
+    }),
+    new RetroTinkSetting({
+      name: 'advanced.system.osd_firmware.on_screen_display.hide_input_res',
+      desc: 'Advanced -> OSD/Firmware -> On Screen Display -> Hide Input Res.',
+      byteRanges: [{ address: 0x1ef8, length: 1 }],
+      type: DataType.BIT,
+    }),
+    new RetroTinkSetting({
+      name: 'advanced.system.osd_firmware.on_screen_display.enable_debug_osd',
+      desc: 'Advanced -> OSD/Firmware -> On Screen Display -> Enable Debug OSD',
+      byteRanges: [{ address: 0x1854, length: 1 }],
+      type: DataType.ENUM,
+      enums: [
+        { name: 'Off', value: new Uint8Array([0]) },
+        { name: 'Status Pg 1', value: new Uint8Array([1]) },
+        { name: 'Status Pg 2', value: new Uint8Array([2]) },
+        { name: 'Status Pg 3', value: new Uint8Array([3]) },
+        { name: 'Console', value: new Uint8Array([4]) },
+      ],
     }),
     new RetroTinkSetting({
       name: 'input',
