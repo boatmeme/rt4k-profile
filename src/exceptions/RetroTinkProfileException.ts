@@ -26,6 +26,12 @@ export class SettingNotSupportedError extends RetroTinkProfileError {
   }
 }
 
+export class SettingNotWritableError extends RetroTinkProfileError {
+  constructor(settingKey: string, message = `Setting is Read-Only and may not be set directly: ${settingKey}`) {
+    super(message);
+  }
+}
+
 export class SettingTypeError extends RetroTinkProfileError {
   constructor(
     settingKey: string,

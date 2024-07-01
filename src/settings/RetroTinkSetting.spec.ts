@@ -262,8 +262,8 @@ describe('RetroTinkSetting', () => {
         });
         test('should set with number', () => {
           const s = new RetroTinkSetting({
-            name: 'header',
-            desc: 'File Header',
+            name: 'advanced.effects.mask.path',
+            desc: 'Mask Path',
             byteRanges: [{ address: 0x0000, length: 12 }],
             type: DataType.STR,
           });
@@ -275,8 +275,8 @@ describe('RetroTinkSetting', () => {
 
         test('should set with boolean', () => {
           const s = new RetroTinkSetting({
-            name: 'header',
-            desc: 'File Header',
+            name: 'advanced.effects.mask.path',
+            desc: 'Mask Path',
             byteRanges: [{ address: 0x0000, length: 12 }],
             type: DataType.STR,
           });
@@ -316,8 +316,8 @@ describe('RetroTinkSetting', () => {
 
         test('should throw with unexpected type', () => {
           const s = new RetroTinkSetting({
-            name: 'header',
-            desc: 'File Header',
+            name: 'advanced.effects.mask.path',
+            desc: 'Mask Path',
             byteRanges: [{ address: 0x0000, length: 12 }],
             type: DataType.STR,
           });
@@ -552,8 +552,8 @@ describe('RetroTinkSetting', () => {
         });
         test('should set with number', () => {
           const s = new RetroTinkSetting({
-            name: 'header',
-            desc: 'File Header',
+            name: 'advanced.effects.mask.enabled',
+            desc: 'Mask Enabled',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.BIT,
           });
@@ -564,8 +564,8 @@ describe('RetroTinkSetting', () => {
         });
         test('should throw for number out of range', () => {
           const s = new RetroTinkSetting({
-            name: 'header',
-            desc: 'File Header',
+            name: 'advanced.effects.mask.enabled',
+            desc: 'Mask Enabled',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.BIT,
           });
@@ -574,8 +574,8 @@ describe('RetroTinkSetting', () => {
         });
         test('should set with boolean', () => {
           const s = new RetroTinkSetting({
-            name: 'header',
-            desc: 'File Header',
+            name: 'advanced.effects.mask.enabled',
+            desc: 'Mask Enabled',
             byteRanges: [{ address: 0x0000, length: 1 }],
             type: DataType.BIT,
           });
@@ -602,8 +602,8 @@ describe('RetroTinkSetting', () => {
         });
         test('should throw with unexpected type', () => {
           const s = new RetroTinkSetting({
-            name: 'header',
-            desc: 'File Header',
+            name: 'advanced.effects.mask.enabled',
+            desc: 'Mask Enabled',
             byteRanges: [{ address: 0x0000, length: 12 }],
             type: DataType.BIT,
           });
@@ -668,8 +668,8 @@ describe('RetroTinkSetting', () => {
       describe('DataType.DOES_NOT_EXIST', () => {
         test('should throw with unexpected type', () => {
           const s = new RetroTinkSetting({
-            name: 'header',
-            desc: 'File Header',
+            name: 'advanced.effects.mask.enabled',
+            desc: 'Mask Enabled',
             byteRanges: [{ address: 0x0000, length: 12 }],
             type: 'DOES_NOT_EXIST' as DataType,
           });

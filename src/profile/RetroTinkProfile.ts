@@ -6,6 +6,7 @@ import {
   WriteFileOptions,
 } from '../utils/FileUtils';
 import {
+  RetroTinkReadOnlySetting,
   RetroTinkSetting,
   RetroTinkSettingValue,
   RetroTinkSettings,
@@ -16,6 +17,7 @@ import {
   InvalidProfileFormatError,
   SettingDeserializationError,
   SettingNotSupportedError,
+  SettingNotWritableError,
 } from '../exceptions/RetroTinkProfileException';
 import { flattenObject } from '../utils/ObjectUtils';
 import { RetroTinkSettingName, RetroTinkSettingPath, RetroTinkSettingsVersion } from '../settings/Schema';
@@ -31,7 +33,7 @@ export default class RetroTinkProfile {
   }
 
   static fromBytes(bytes: Uint8Array) {
-    const header = this._settings.get('header');
+    const header = this._settings.get('header' as RetroTinkSettingName);
     const headerValue = new RetroTinkSettingValue(header, RetroTinkProfile.sliceBytes(header, bytes)).asString();
     if (headerValue !== 'RT4K Profile') throw new InvalidProfileFormatError(`Header is invalid: ${headerValue}`);
     return new RetroTinkProfile(bytes);
@@ -65,6 +67,8 @@ export default class RetroTinkProfile {
 
   private _setValueWithInstance(setting: RetroTinkSettingValue): void {
     if (!RetroTinkProfile._settings.has(setting.name)) throw new SettingNotSupportedError(setting.name);
+    if (RetroTinkProfile._settings.get(setting.name) instanceof RetroTinkReadOnlySetting)
+      throw new SettingNotWritableError(setting.name);
     const byte_array = Array.from(this._bytes);
     let offset = 0;
     for (const byteRange of setting.byteRanges) {
@@ -76,6 +80,8 @@ export default class RetroTinkProfile {
 
   private _setValueWithPrimitive<T extends RetroTinkSettingName>(settingsKey: T, val: string | number | boolean): void {
     if (!RetroTinkProfile._settings.has(settingsKey)) throw new SettingNotSupportedError(settingsKey);
+    if (RetroTinkProfile._settings.get(settingsKey) instanceof RetroTinkReadOnlySetting)
+      throw new SettingNotWritableError(settingsKey);
     const setting = this.getValue(settingsKey);
     setting.set(val);
     return this._setValueWithInstance(setting);
@@ -106,15 +112,19 @@ export default class RetroTinkProfile {
   }
 
   getSettingsNames(): string[] {
-    return Array.from(RetroTinkProfile._settings).map(([, s]) => s.name);
+    return Array.from(RetroTinkProfile._settings)
+      .filter(([, s]) => !(s instanceof RetroTinkReadOnlySetting))
+      .map(([, s]) => s.name);
   }
 
   getValues(...scopes: ProfileScope<RetroTinkSettingPath>[]): RetroTinkSettingsValues {
     const filterScope = scopes.length == 0 ? [() => true] : scopes;
     return new RetroTinkSettingsValues(
-      Array.from(RetroTinkProfile._settings, ([, s]) => new RetroTinkSettingValue(s, this.sliceBytes(s))).filter((s) =>
-        RetroTinkProfile.matchesAnyScope(s.name, filterScope),
-      ),
+      Array.from(RetroTinkProfile._settings)
+        .filter(
+          ([, s]) => !(s instanceof RetroTinkReadOnlySetting) && RetroTinkProfile.matchesAnyScope(s.name, filterScope),
+        )
+        .map(([, s]) => new RetroTinkSettingValue(s, this.sliceBytes(s))),
     );
   }
 
@@ -126,6 +136,9 @@ export default class RetroTinkProfile {
   setValues(settings: RetroTinkSettingsValues): void {
     const byte_array = Array.from(this._bytes);
     for (const setting of settings.values()) {
+      if (!RetroTinkProfile._settings.has(setting.name)) throw new SettingNotSupportedError(setting.name);
+      if (RetroTinkProfile._settings.get(setting.name) instanceof RetroTinkReadOnlySetting)
+        throw new SettingNotWritableError(setting.name);
       let offset = 0;
       for (const byteRange of setting.byteRanges) {
         byte_array.splice(
