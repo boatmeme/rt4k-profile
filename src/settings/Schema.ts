@@ -26,7 +26,6 @@ type SettingPath<T, K extends keyof T = keyof T> = K extends string
 export type RetroTinkSettingPath = SettingPath<RetroTinkSettingsSchema> | RetroTinkSettingName;
 
 export type RetroTinkSettingsSchema = {
-  header: string;
   input: string;
   output: {
     resolution: string;
@@ -70,8 +69,8 @@ export type RetroTinkSettingsSchema = {
 export const RetroTinkSettingsVersion = {
   '1.4.2': new RetroTinkSettings([
     new RetroTinkSetting({
-      name: 'header',
-      desc: 'File Header',
+      name: 'header' as RetroTinkSettingName,
+      desc: 'File Header (Read-Only)',
       byteRanges: [{ address: 0x0000, length: 12 }],
       type: DataType.STR,
       readOnly: true,

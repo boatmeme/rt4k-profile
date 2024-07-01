@@ -32,7 +32,7 @@ export default class RetroTinkProfile {
   }
 
   static fromBytes(bytes: Uint8Array) {
-    const header = this._settings.get('header');
+    const header = this._settings.get('header' as RetroTinkSettingName);
     const headerValue = new RetroTinkSettingValue(header, RetroTinkProfile.sliceBytes(header, bytes)).asString();
     if (headerValue !== 'RT4K Profile') throw new InvalidProfileFormatError(`Header is invalid: ${headerValue}`);
     return new RetroTinkProfile(bytes);
