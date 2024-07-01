@@ -18,7 +18,6 @@ interface RetroTinkSettingParams {
   byteRanges: ByteRange[];
   type: DataType;
   enums?: RetroTinkEnumValue[];
-  readOnly?: boolean;
 }
 
 interface RetroTinkEnumValue {
@@ -32,7 +31,6 @@ export class RetroTinkSetting {
   byteRanges: ByteRange[];
   type: DataType;
   enums?: RetroTinkEnumValue[];
-  readOnly: boolean = false;
 
   constructor(params: RetroTinkSettingParams) {
     this.name = params.name;
@@ -40,7 +38,6 @@ export class RetroTinkSetting {
     this.byteRanges = params.byteRanges;
     this.type = params.type;
     this.enums = params.enums;
-    this.readOnly = params.readOnly === true ? true : false;
   }
   length(): number {
     return this.byteRanges.reduce((acc, r) => acc + r.length, 0);
@@ -65,6 +62,8 @@ export class RetroTinkSetting {
     }
   }
 }
+
+export class RetroTinkReadOnlySetting extends RetroTinkSetting {}
 
 export type RetroTinkSettingsValuesPlainObject = {
   [key: string]: string | number | boolean | RetroTinkSettingsValuesPlainObject;
