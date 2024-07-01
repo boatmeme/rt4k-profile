@@ -131,7 +131,8 @@ export default class RetroTinkProfile {
   setValues(settings: RetroTinkSettingsValues): void {
     const byte_array = Array.from(this._bytes);
     for (const setting of settings.values()) {
-      if (setting.readOnly) continue;
+      if (!RetroTinkProfile._settings.has(setting.name)) throw new SettingNotSupportedError(setting.name);
+      if (RetroTinkProfile._settings.get(setting.name).readOnly) throw new SettingNotWritableError(setting.name);
       let offset = 0;
       for (const byteRange of setting.byteRanges) {
         byte_array.splice(

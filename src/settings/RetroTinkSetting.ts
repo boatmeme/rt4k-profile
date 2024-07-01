@@ -78,6 +78,9 @@ class RetroTinkBaseSettings<T extends RetroTinkSetting> extends Map<string, T> {
     if (!this.has(key)) throw new SettingNotSupportedError(key);
     return super.get(key);
   }
+  set<S extends RetroTinkSettingName>(key: S, value: T) {
+    return super.set(key, value);
+  }
 }
 
 export class RetroTinkSettings extends RetroTinkBaseSettings<RetroTinkSetting> {}

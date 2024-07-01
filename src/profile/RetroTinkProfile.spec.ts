@@ -10,6 +10,7 @@ import { RetroTinkSettingName, RetroTinkSettingPath } from '../settings/Schema';
 import RetroTinkProfile from './RetroTinkProfile';
 import { bad_setting_json_str, invalid_json, pretty_json_str, unpretty_json_str } from './__fixtures__/json_profiles';
 import { readFileBinarySync, writeFileBinary, writeFileBinarySync } from '../utils/FileUtils';
+import { DataType } from '../settings/DataType';
 
 jest.mock('../utils/FileUtils', () => ({
   ...jest.requireActual('../utils/FileUtils'),
@@ -156,6 +157,34 @@ describe('RetroTinkProfile', () => {
       settings = profile.getValues();
       strength = settings.get('advanced.effects.mask.strength');
       expect(strength?.asInt()).toEqual(-3);
+    });
+    test('should throw when attempting to persist read-only settings', async () => {
+      const profile = await RetroTinkProfile.build();
+      let settings = profile.getValues();
+      const s = new RetroTinkSetting({
+        name: 'header' as RetroTinkSettingName,
+        desc: 'File Header',
+        byteRanges: [{ address: 0x0000, length: 12 }],
+        type: DataType.STR,
+      });
+      const v = new RetroTinkSettingValue(s);
+
+      settings.set('header' as RetroTinkSettingName, v)
+      expect(() => profile.setValues(settings)).toThrow(SettingNotWritableError); 
+    });
+    test('should throw when attempting to persist invalid settings', async () => {
+      const profile = await RetroTinkProfile.build();
+      let settings = profile.getValues();
+      const s = new RetroTinkSetting({
+        name: 'garbage' as RetroTinkSettingName,
+        desc: 'garbage',
+        byteRanges: [{ address: 0x0000, length: 12 }],
+        type: DataType.STR,
+      });
+      const v = new RetroTinkSettingValue(s);
+
+      settings.set('garbage' as RetroTinkSettingName, v)
+      expect(() => profile.setValues(settings)).toThrow(SettingNotSupportedError); 
     });
   });
   describe('setValue', () => {
