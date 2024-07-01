@@ -51,6 +51,16 @@ export type RetroTinkSettingsSchema = {
         strength: number;
       };
     };
+    acquisition: {
+      audio_input: {
+        sampling: {
+          sample_rate: string;
+        };
+        source: {
+          input_override: string;
+        };
+      };
+    };
     system: {
       osd_firmware: {
         banner_image: {
@@ -92,6 +102,30 @@ export const RetroTinkSettingsVersion = {
       desc: 'Advanced -> Processing -> Mask -> Path',
       byteRanges: [{ address: 0x0090, length: 256 }],
       type: DataType.STR,
+    }),
+    new RetroTinkSetting({
+      name: 'advanced.acquisition.audio_input.sampling.sample_rate',
+      desc: 'Advanced -> Acquisition -> Audio Input -> Sampling -> Sample Rate',
+      byteRanges: [{ address: 0x1624, length: 1 }],
+      type: DataType.ENUM,
+      enums: [
+        { name: '48 kHz', value: new Uint8Array([0]) },
+        { name: '96 kHz', value: new Uint8Array([1]) },
+      ],
+    }),
+    new RetroTinkSetting({
+      name: 'advanced.acquisition.audio_input.source.input_override',
+      desc: 'Advanced -> Acquisition -> Audio Input -> Source -> Input Override',
+      byteRanges: [{ address: 0x1618, length: 1 }],
+      type: DataType.ENUM,
+      enums: [
+        { name: 'Off', value: new Uint8Array([0]) },
+        { name: 'RCA', value: new Uint8Array([1]) },
+        { name: 'HD-15', value: new Uint8Array([2]) },
+        { name: 'SCART', value: new Uint8Array([3]) },
+        { name: 'Front', value: new Uint8Array([4]) },
+        { name: 'S/PDIF', value: new Uint8Array([5]) },
+      ],
     }),
     new RetroTinkSetting({
       name: 'advanced.system.osd_firmware.banner_image.load_banner',
