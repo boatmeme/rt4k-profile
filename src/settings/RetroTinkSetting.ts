@@ -1,6 +1,5 @@
 import {
   SettingNotSupportedError,
-  SettingNotWritableError,
   SettingTypeError,
   SettingValidationError,
 } from '../exceptions/RetroTinkProfileException';
@@ -173,7 +172,6 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
   }
 
   set(val: string | number | boolean) {
-    if (this instanceof RetroTinkReadOnlySetting) throw new SettingNotWritableError(this.name);
     if (typeof val === 'string') {
       switch (this.type) {
         case DataType.STR:
@@ -228,7 +226,6 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
   }
 
   private fromString(str: string): void {
-    if (this instanceof RetroTinkReadOnlySetting) throw new SettingNotWritableError(this.name);
     const length = this.length();
     this.value = new Uint8Array(length);
     if (this.type == DataType.BIT) {
@@ -263,7 +260,6 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
   }
 
   private fromInt(num: number): void {
-    if (this instanceof RetroTinkReadOnlySetting) throw new SettingNotWritableError(this.name);
     const length = this.length();
     this.value = new Uint8Array(length);
     if (this.type == DataType.ENUM) {
@@ -295,7 +291,6 @@ export class RetroTinkSettingValue extends RetroTinkSetting {
   }
 
   private fromBool(bool: boolean): void {
-    if (this instanceof RetroTinkReadOnlySetting) throw new SettingNotWritableError(this.name);
     const length = this.length();
     this.value = new Uint8Array(length);
     if (length > 0) {
