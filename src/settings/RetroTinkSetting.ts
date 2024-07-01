@@ -63,6 +63,8 @@ export class RetroTinkSetting {
   }
 }
 
+export class RetroTinkReadOnlySetting extends RetroTinkSetting {}
+
 export type RetroTinkSettingsValuesPlainObject = {
   [key: string]: string | number | boolean | RetroTinkSettingsValuesPlainObject;
 };
@@ -74,6 +76,9 @@ class RetroTinkBaseSettings<T extends RetroTinkSetting> extends Map<string, T> {
   get<S extends RetroTinkSettingName>(key: S): T {
     if (!this.has(key)) throw new SettingNotSupportedError(key);
     return super.get(key);
+  }
+  set<S extends RetroTinkSettingName>(key: S, value: T) {
+    return super.set(key, value);
   }
 }
 
