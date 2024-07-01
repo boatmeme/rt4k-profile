@@ -1,5 +1,5 @@
 import { DataType } from './DataType';
-import { RetroTinkSetting, RetroTinkSettings } from './RetroTinkSetting';
+import { RetroTinkReadOnlySetting, RetroTinkSetting, RetroTinkSettings } from './RetroTinkSetting';
 
 export type Primitive = string | number | boolean;
 
@@ -68,12 +68,11 @@ export type RetroTinkSettingsSchema = {
 
 export const RetroTinkSettingsVersion = {
   '1.4.2': new RetroTinkSettings([
-    new RetroTinkSetting({
+    new RetroTinkReadOnlySetting({
       name: 'header' as RetroTinkSettingName,
       desc: 'File Header (Read-Only)',
       byteRanges: [{ address: 0x0000, length: 12 }],
       type: DataType.STR,
-      readOnly: true,
     }),
     new RetroTinkSetting({
       name: 'advanced.effects.mask.enabled',
