@@ -90,7 +90,6 @@ describe('RetroTinkProfile', () => {
       profile.deserializeValues(pretty_json_str);
       const settings = profile.getValues();
       expect(settings).toBeInstanceOf(RetroTinkSettingsValues);
-      expect(settings.get('header')?.asString()).toEqual('RT4K Profile');
       expect(settings.get('advanced.effects.mask.enabled')?.asInt()).toEqual(1);
       expect(settings.get('advanced.effects.mask.strength')?.asInt()).toEqual(-4);
       expect(settings.get('advanced.effects.mask.path')?.asString()).toEqual('Mono Masks/A Grille Medium Mono.bmp');
@@ -114,7 +113,6 @@ describe('RetroTinkProfile', () => {
     test('should return the defaults', async () => {
       const profile = await RetroTinkProfile.build();
       const settings = profile.getValues();
-      expect(settings.get('header')?.asString()).toEqual('RT4K Profile');
       expect(settings.get('advanced.effects.mask.enabled')?.asInt()).toEqual(0);
       expect(settings.get('advanced.effects.mask.strength')?.asInt()).toEqual(0);
       expect(settings.get('advanced.effects.mask.path')?.asString()).toEqual('');
@@ -122,7 +120,6 @@ describe('RetroTinkProfile', () => {
     test('should load the settings for whichever file you specify', async () => {
       const profile = await RetroTinkProfile.build(`${__dirname}/__fixtures__/mask-enabled-strength-10.rt4`);
       const settings = profile.getValues();
-      expect(settings.get('header')?.asString()).toEqual('RT4K Profile');
       expect(settings.get('advanced.effects.mask.enabled')?.asInt()).toEqual(1);
       expect(settings.get('advanced.effects.mask.strength')?.asInt()).toEqual(10);
       expect(settings.get('advanced.effects.mask.path')?.asString()).toEqual('');
@@ -145,11 +142,19 @@ describe('RetroTinkProfile', () => {
       let settings = profile.getValues();
       let strength = settings.get('advanced.effects.mask.strength');
       expect(strength?.asInt()).toEqual(0);
-      strength.set(-6);
-      profile.setValues(settings);
+
+      strength.set(-6); // Make the change on the settings value instance...
+      profile.setValue(strength); // ...and send the instance itself to set it
       settings = profile.getValues();
       strength = settings.get('advanced.effects.mask.strength');
       expect(strength?.asInt()).toEqual(-6);
+
+      // Let's make sure we didn't write some code somewhere that derefs the map members
+      strength.set(-3); // Make the change on the settings value instance...
+      profile.setValues(settings); // ...but send the whole map back
+      settings = profile.getValues();
+      strength = settings.get('advanced.effects.mask.strength');
+      expect(strength?.asInt()).toEqual(-3);
     });
   });
   describe('setValue', () => {

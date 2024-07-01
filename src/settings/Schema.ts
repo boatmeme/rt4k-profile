@@ -74,6 +74,7 @@ export const RetroTinkSettingsVersion = {
       desc: 'File Header',
       byteRanges: [{ address: 0x0000, length: 12 }],
       type: DataType.STR,
+      readOnly: true,
     }),
     new RetroTinkSetting({
       name: 'advanced.effects.mask.enabled',
