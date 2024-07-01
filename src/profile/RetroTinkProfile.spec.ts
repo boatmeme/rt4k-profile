@@ -6,7 +6,7 @@ import {
   SettingNotWritableError,
 } from '../exceptions/RetroTinkProfileException';
 import { RetroTinkSetting, RetroTinkSettingValue, RetroTinkSettingsValues } from '../settings/RetroTinkSetting';
-import { RetroTinkSettingName, RetroTinkSettingPath } from '../settings/Schema';
+import { RetroTinkSettingName } from '../settings/Schema';
 import RetroTinkProfile from './RetroTinkProfile';
 import { bad_setting_json_str, invalid_json, pretty_json_str, unpretty_json_str } from './__fixtures__/json_profiles';
 import { readFileBinarySync, writeFileBinary, writeFileBinarySync } from '../utils/FileUtils';
@@ -160,7 +160,7 @@ describe('RetroTinkProfile', () => {
     });
     test('should throw when attempting to persist read-only settings', async () => {
       const profile = await RetroTinkProfile.build();
-      let settings = profile.getValues();
+      const settings = profile.getValues();
       const s = new RetroTinkSetting({
         name: 'header' as RetroTinkSettingName,
         desc: 'File Header',
@@ -169,12 +169,12 @@ describe('RetroTinkProfile', () => {
       });
       const v = new RetroTinkSettingValue(s);
 
-      settings.set('header' as RetroTinkSettingName, v)
-      expect(() => profile.setValues(settings)).toThrow(SettingNotWritableError); 
+      settings.set('header' as RetroTinkSettingName, v);
+      expect(() => profile.setValues(settings)).toThrow(SettingNotWritableError);
     });
     test('should throw when attempting to persist invalid settings', async () => {
       const profile = await RetroTinkProfile.build();
-      let settings = profile.getValues();
+      const settings = profile.getValues();
       const s = new RetroTinkSetting({
         name: 'garbage' as RetroTinkSettingName,
         desc: 'garbage',
@@ -183,8 +183,8 @@ describe('RetroTinkProfile', () => {
       });
       const v = new RetroTinkSettingValue(s);
 
-      settings.set('garbage' as RetroTinkSettingName, v)
-      expect(() => profile.setValues(settings)).toThrow(SettingNotSupportedError); 
+      settings.set('garbage' as RetroTinkSettingName, v);
+      expect(() => profile.setValues(settings)).toThrow(SettingNotSupportedError);
     });
   });
   describe('setValue', () => {
@@ -221,7 +221,9 @@ describe('RetroTinkProfile', () => {
         new Uint8Array([250]),
       );
       expect(() => profile.setValue(setting)).toThrow(SettingNotSupportedError);
-      expect(() => profile.setValue('something.unsupported' as RetroTinkSettingName, 'header')).toThrow(SettingNotSupportedError);
+      expect(() => profile.setValue('something.unsupported' as RetroTinkSettingName, 'header')).toThrow(
+        SettingNotSupportedError,
+      );
     });
     test('read-only setting should throw ', async () => {
       const profile = await RetroTinkProfile.build();
