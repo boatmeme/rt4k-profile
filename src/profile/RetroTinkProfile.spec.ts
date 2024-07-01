@@ -3,6 +3,7 @@ import {
   ProfileNotFoundError,
   SettingDeserializationError,
   SettingNotSupportedError,
+  SettingNotWritableError,
 } from '../exceptions/RetroTinkProfileException';
 import { RetroTinkSetting, RetroTinkSettingValue, RetroTinkSettingsValues } from '../settings/RetroTinkSetting';
 import { RetroTinkSettingName, RetroTinkSettingPath } from '../settings/Schema';
@@ -186,11 +187,23 @@ describe('RetroTinkProfile', () => {
       const profile = await RetroTinkProfile.build();
       const setting = new RetroTinkSettingValue(
         {
-          name: 'something.unsupported' as RetroTinkSettingPath,
+          name: 'something.unsupported' as RetroTinkSettingName,
         } as RetroTinkSetting,
         new Uint8Array([250]),
       );
       expect(() => profile.setValue(setting)).toThrow(SettingNotSupportedError);
+      expect(() => profile.setValue('something.unsupported' as RetroTinkSettingName, 'header')).toThrow(SettingNotSupportedError);
+    });
+    test('read-only setting should throw ', async () => {
+      const profile = await RetroTinkProfile.build();
+      const setting = new RetroTinkSettingValue(
+        {
+          name: 'header' as RetroTinkSettingName,
+        } as RetroTinkSetting,
+        new Uint8Array([250]),
+      );
+      expect(() => profile.setValue(setting)).toThrow(SettingNotWritableError);
+      expect(() => profile.setValue('header' as RetroTinkSettingName, 'primitive')).toThrow(SettingNotWritableError);
     });
   });
   describe('merge', () => {
