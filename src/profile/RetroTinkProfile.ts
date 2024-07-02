@@ -65,6 +65,25 @@ export default class RetroTinkProfile {
     return RetroTinkProfile.sliceBytes(setting, this._bytes);
   }
 
+  private _setReadOnlyValues() {
+    const readOnlyValues = <RetroTinkReadOnlySetting[]>(
+      Array.from(RetroTinkProfile._settings.values()).filter((s) => s instanceof RetroTinkReadOnlySetting)
+    );
+    const byte_array = Array.from(this._bytes);
+    for (const setting of readOnlyValues) {
+      const derivedFromValues =
+        setting.derivedFrom.length > 0 ? Array.from(this.getValues(...setting.derivedFrom).values()) : [];
+      const value = setting.deriveValue(...derivedFromValues);
+
+      let offset = 0;
+      for (const byteRange of setting.byteRanges) {
+        byte_array.splice(byteRange.address, byteRange.length, ...value.slice(offset, offset + byteRange.length));
+        offset += byteRange.length;
+      }
+    }
+    this._bytes = new Uint8Array(byte_array);
+  }
+
   private _setValueWithInstance(setting: RetroTinkSettingValue): void {
     if (!RetroTinkProfile._settings.has(setting.name)) throw new SettingNotSupportedError(setting.name);
     if (RetroTinkProfile._settings.get(setting.name) instanceof RetroTinkReadOnlySetting)
@@ -214,10 +233,12 @@ export default class RetroTinkProfile {
   }
 
   async save(filePath: string, opts: WriteFileOptions = { createDirectoryIfNotExist: true }) {
+    this._setReadOnlyValues();
     return writeFileBinary(filePath, this._bytes, opts);
   }
 
   saveSync(filePath: string, opts: WriteFileOptions = { createDirectoryIfNotExist: true }) {
+    this._setReadOnlyValues();
     return writeFileBinarySync(filePath, this._bytes, opts);
   }
 
