@@ -128,7 +128,6 @@ export const RetroTinkSettingsVersion = {
       deriveValue: (...[audio_input_override, source_input]: RetroTinkSettingValue[]) => {
         const overrideVal = audio_input_override.asInt();
         const sourceVal = source_input.asInt();
-        console.log(audio_input_override, source_input);
         if (overrideVal == 0) {
           switch (sourceVal) {
             case 0:
