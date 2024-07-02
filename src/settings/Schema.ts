@@ -1,5 +1,10 @@
 import { DataType } from './DataType';
-import { RetroTinkReadOnlySetting, RetroTinkSetting, RetroTinkSettings } from './RetroTinkSetting';
+import {
+  RetroTinkReadOnlySetting,
+  RetroTinkSetting,
+  RetroTinkSettingValue,
+  RetroTinkSettings,
+} from './RetroTinkSetting';
 
 export type Primitive = string | number | boolean;
 
@@ -114,6 +119,64 @@ export const RetroTinkSettingsVersion = {
         { name: '96 kHz', value: new Uint8Array([1]) },
       ],
     }),
+    new RetroTinkReadOnlySetting({
+      name: 'input.audio' as RetroTinkSettingName,
+      desc: 'Audio Input (Read-Only)',
+      byteRanges: [{ address: 0x0368, length: 1 }],
+      type: DataType.INT,
+      derivedFrom: ['advanced.acquisition.audio_input.source.input_override', 'input'],
+      deriveValue: (...[audio_input_override, source_input]: RetroTinkSettingValue[]) => {
+        const overrideVal = audio_input_override.asInt();
+        const sourceVal = source_input.asInt();
+        console.log(audio_input_override, source_input);
+        if (overrideVal == 0) {
+          switch (sourceVal) {
+            case 0:
+              return new Uint8Array([5]);
+            case 3:
+              return new Uint8Array([3]);
+            case 4:
+              return new Uint8Array([3]);
+            case 7:
+              return new Uint8Array([0]);
+            case 8:
+              return new Uint8Array([0]);
+            case 9:
+              return new Uint8Array([0]);
+            case 12:
+              return new Uint8Array([2]);
+            case 13:
+              return new Uint8Array([2]);
+            case 14:
+              return new Uint8Array([2]);
+            case 15:
+              return new Uint8Array([2]);
+            case 16:
+              return new Uint8Array([2]);
+            case 17:
+              return new Uint8Array([2]);
+            case 20:
+              return new Uint8Array([1]);
+            case 21:
+              return new Uint8Array([1]);
+            case 22:
+              return new Uint8Array([1]);
+            case 23:
+              return new Uint8Array([1]);
+            case 24:
+              return new Uint8Array([1]);
+            case 25:
+              return new Uint8Array([1]);
+            case 26:
+              return new Uint8Array([1]);
+            case 27:
+              return new Uint8Array([1]);
+          }
+        } else {
+          return new Uint8Array([overrideVal - 1]);
+        }
+      },
+    }),
     new RetroTinkSetting({
       name: 'advanced.acquisition.audio_input.source.input_override',
       desc: 'Advanced -> Acquisition -> Audio Input -> Source -> Input Override',
@@ -186,32 +249,29 @@ export const RetroTinkSettingsVersion = {
     new RetroTinkSetting({
       name: 'input',
       desc: 'Input',
-      byteRanges: [
-        { address: 0x0368, length: 1 },
-        { address: 0x5869, length: 1 },
-      ],
+      byteRanges: [{ address: 0x5869, length: 1 }],
       type: DataType.ENUM,
       enums: [
-        { name: 'HDMI', value: new Uint8Array([5, 0]) },
-        { name: 'Front|Composite', value: new Uint8Array([3, 3]) },
-        { name: 'Front|S-Video', value: new Uint8Array([3, 4]) },
-        { name: 'RCA|YPbPr', value: new Uint8Array([0, 7]) },
-        { name: 'RCA|RGsB', value: new Uint8Array([0, 8]) },
-        { name: 'RCA|CVBS on Green', value: new Uint8Array([0, 9]) },
-        { name: 'SCART|RGBS (75 Ohm)', value: new Uint8Array([2, 12]) },
-        { name: 'SCART|RGsB', value: new Uint8Array([2, 13]) },
-        { name: 'SCART|YPbPr', value: new Uint8Array([2, 14]) },
-        { name: 'SCART|CVBS on Pin 20', value: new Uint8Array([2, 15]) },
-        { name: 'SCART|CVBS on Green', value: new Uint8Array([2, 16]) },
-        { name: 'SCART|Y/C on Pin 20/Red', value: new Uint8Array([2, 17]) },
-        { name: 'HD-15|RGBHV', value: new Uint8Array([1, 20]) },
-        { name: 'HD-15|RGBS', value: new Uint8Array([1, 21]) },
-        { name: 'HD-15|RGsB', value: new Uint8Array([1, 22]) },
-        { name: 'HD-15|YPbPr', value: new Uint8Array([1, 23]) },
-        { name: 'HD-15|CVBS on Hsync', value: new Uint8Array([1, 24]) },
-        { name: 'HD-15|CVBS on Green', value: new Uint8Array([1, 25]) },
-        { name: 'HD-15|Y/C on Green/Red', value: new Uint8Array([1, 26]) },
-        { name: 'HD-15|Y/C on G/R (Enh.)', value: new Uint8Array([1, 27]) },
+        { name: 'HDMI', value: new Uint8Array([0]) },
+        { name: 'Front|Composite', value: new Uint8Array([3]) },
+        { name: 'Front|S-Video', value: new Uint8Array([4]) },
+        { name: 'RCA|YPbPr', value: new Uint8Array([7]) },
+        { name: 'RCA|RGsB', value: new Uint8Array([8]) },
+        { name: 'RCA|CVBS on Green', value: new Uint8Array([9]) },
+        { name: 'SCART|RGBS (75 Ohm)', value: new Uint8Array([12]) },
+        { name: 'SCART|RGsB', value: new Uint8Array([13]) },
+        { name: 'SCART|YPbPr', value: new Uint8Array([14]) },
+        { name: 'SCART|CVBS on Pin 20', value: new Uint8Array([15]) },
+        { name: 'SCART|CVBS on Green', value: new Uint8Array([16]) },
+        { name: 'SCART|Y/C on Pin 20/Red', value: new Uint8Array([17]) },
+        { name: 'HD-15|RGBHV', value: new Uint8Array([20]) },
+        { name: 'HD-15|RGBS', value: new Uint8Array([21]) },
+        { name: 'HD-15|RGsB', value: new Uint8Array([22]) },
+        { name: 'HD-15|YPbPr', value: new Uint8Array([23]) },
+        { name: 'HD-15|CVBS on Hsync', value: new Uint8Array([24]) },
+        { name: 'HD-15|CVBS on Green', value: new Uint8Array([25]) },
+        { name: 'HD-15|Y/C on Green/Red', value: new Uint8Array([26]) },
+        { name: 'HD-15|Y/C on G/R (Enh.)', value: new Uint8Array([27]) },
       ],
     }),
     new RetroTinkSetting({
