@@ -83,6 +83,8 @@ export const RetroTinkSettingsVersion = {
       desc: 'File Header (Read-Only)',
       byteRanges: [{ address: 0x0000, length: 12 }],
       type: DataType.STR,
+      derivedFrom: [],
+      deriveValue: () => new Uint8Array([82, 84, 52, 75, 32, 80, 114, 111, 102, 105, 108, 101]),
     }),
     new RetroTinkSetting({
       name: 'advanced.effects.mask.enabled',
