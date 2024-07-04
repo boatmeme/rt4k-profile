@@ -1,5 +1,5 @@
 # rt4k-profile ૮₍ • ˕ - ₎ა
-[![npm version](https://badge.fury.io/js/rt4k-profile.svg)](https://badge.fury.io/js/rt4k-profile) [![codecov](https://codecov.io/github/boatmeme/rt4k-profile/graph/badge.svg?token=dbwq3YlYw2)](https://codecov.io/github/boatmeme/rt4k-profile) ![build](https://github.com/boatmeme/rt4k-profile/actions/workflows/coverage.yml/badge.svg?branch=main)
+[![npm version](https://badge.fury.io/js/rt4k-profile.svg?kill_cache=1)](https://badge.fury.io/js/rt4k-profile) [![codecov](https://codecov.io/github/boatmeme/rt4k-profile/graph/badge.svg?token=dbwq3YlYw2)](https://codecov.io/github/boatmeme/rt4k-profile) ![build](https://github.com/boatmeme/rt4k-profile/actions/workflows/coverage.yml/badge.svg?branch=main)
 
 A Typescript Library for Reading and Writing RetroTINK-4k .rt4 Profiles
 
