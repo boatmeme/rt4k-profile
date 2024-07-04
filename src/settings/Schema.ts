@@ -60,9 +60,11 @@ export type RetroTinkSettingsSchema = {
       audio_input: {
         sampling: {
           sample_rate: string;
+          preamp_gain: string;
         };
         source: {
           input_override: string;
+          input_swap: string;
         };
       };
     };
@@ -120,6 +122,17 @@ export const RetroTinkSettingsVersion = {
         { name: '96 kHz', value: new Uint8Array([1]) },
       ],
     }),
+    new RetroTinkSetting({
+      name: 'advanced.acquisition.audio_input.sampling.preamp_gain',
+      desc: 'Advanced -> Acquisition -> Audio Input -> Sampling -> Pre-amp Gain',
+      byteRanges: [{ address: 0x1610, length: 1 }],
+      type: DataType.ENUM,
+      // Generates 105 enum entries for pre-amp gain from -24.0 dB to +28.0 dB in 0.5 dB steps
+      enums: Array.from({ length: 105 }, (_, i) => ({
+        name: `${i * 0.5 - 24 >= 0 ? '+' : ''}${(i * 0.5 - 24).toFixed(1)} dB`,
+        value: new Uint8Array([(208 + i) & 255]),
+      })),
+    }),
     new RetroTinkReadOnlySetting({
       name: 'input.audio' as RetroTinkSettingName,
       desc: 'Audio Input (Read-Only)',
@@ -161,6 +174,18 @@ export const RetroTinkSettingsVersion = {
         { name: 'SCART', value: new Uint8Array([3]) },
         { name: 'Front', value: new Uint8Array([4]) },
         { name: 'S/PDIF', value: new Uint8Array([5]) },
+      ],
+    }),
+    new RetroTinkSetting({
+      name: 'advanced.acquisition.audio_input.source.input_swap',
+      desc: 'Advanced -> Acquisition -> Audio Input -> Source -> Input Swap',
+      byteRanges: [{ address: 0x1620, length: 1 }],
+      type: DataType.ENUM,
+      enums: [
+        { name: 'Off', value: new Uint8Array([0]) },
+        { name: 'Mono (Left)', value: new Uint8Array([1]) },
+        { name: 'Mono (Right)', value: new Uint8Array([2]) },
+        { name: 'L/R Swap', value: new Uint8Array([3]) },
       ],
     }),
     new RetroTinkSetting({

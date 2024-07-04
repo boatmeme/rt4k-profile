@@ -101,7 +101,9 @@ outputProfile.saveSync('/path/to/my/new_snes_profile.rt4');
 
 - Added support for the following settings:
   - `advanced.acquisition.audio_input.sampling.sample_rate`
+  - `advanced.acquisition.audio_input.sampling.preamp_gain`
   - `advanced.acquisition.audio_input.source.input_override`
+  - `advanced.acquisition.audio_input.source.input_swap`
 
 ### Version 1.0.1 (2024-07-03)
 

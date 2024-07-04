@@ -95,5 +95,19 @@ describe('Schema', () => {
         });
       });
     });
+    describe('dynamically generated values', () => {
+      describe('advanced.acquisition.audio_input.sampling.preamp_gain', () => {
+        const settings = RetroTinkSettingsVersion['1.4.2'];
+        const gain = settings.get('advanced.acquisition.audio_input.sampling.preamp_gain');
+        const first = gain.enums?.find(({ name }) => name == '-24.0 dB');
+        const last = gain.enums?.find(({ name }) => name == '+28.0 dB');
+        const middle = gain.enums?.find(({ name }) => name == '+0.0 dB');
+
+        expect(gain.enums?.length).toBe(105);
+        expect(first?.value).toEqual(new Uint8Array([208]));
+        expect(last?.value).toEqual(new Uint8Array([56]));
+        expect(middle?.value).toEqual(new Uint8Array([0]));
+      });
+    });
   });
 });
