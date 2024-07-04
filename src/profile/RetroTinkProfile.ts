@@ -1,4 +1,5 @@
 import {
+  CRC16CCITT,
   readFileBinary,
   readFileBinarySync,
   writeFileBinary,
@@ -232,17 +233,37 @@ export default class RetroTinkProfile {
     return newProfile;
   }
 
+  private static CRC_WRITE_INDEX = 32;
+  private _getCrc(): Uint8Array {
+    const START_INDEX = 128;
+
+    const crcValue = CRC16CCITT.calculate(this._bytes, START_INDEX);
+    return new Uint8Array([crcValue & 0xff, (crcValue >> 8) & 0xff]);
+  }
+
+  private _writeCrc(): void {
+    this._bytes.set(this._getCrc(), RetroTinkProfile.CRC_WRITE_INDEX);
+  }
+
   async save(filePath: string, opts: WriteFileOptions = { createDirectoryIfNotExist: true }) {
     this._setReadOnlyValues();
+    this._writeCrc();
     return writeFileBinary(filePath, this._bytes, opts);
   }
 
   saveSync(filePath: string, opts: WriteFileOptions = { createDirectoryIfNotExist: true }) {
     this._setReadOnlyValues();
+    this._writeCrc();
     return writeFileBinarySync(filePath, this._bytes, opts);
   }
 
   toString(): string {
     return this.serializeValues(true);
+  }
+
+  getCrcString(): string {
+    const [lowByte, highByte] = this._getCrc();
+    const crcValue = (highByte << 8) | lowByte;
+    return `0x${crcValue.toString(16).toUpperCase().padStart(4, '0')}`;
   }
 }

@@ -1,4 +1,4 @@
-import { readFileBinary, readFileBinarySync, writeFileBinary, writeFileBinarySync } from './FileUtils';
+import { CRC16CCITT, readFileBinary, readFileBinarySync, writeFileBinary, writeFileBinarySync } from './FileUtils';
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import { ProfileNotFoundError } from '../exceptions/RetroTinkProfileException';
 import { mkdirSync, readFileSync, writeFileSync } from 'fs';
@@ -121,6 +121,19 @@ describe('FileUtils', () => {
       });
 
       expect(() => writeFileBinarySync(filePath, someBytes)).toThrow(ProfileNotFoundError);
+    });
+  });
+  describe('CRC16CCITT', () => {
+    it('should calculate the correct CRC for a known input', () => {
+      const testData = Buffer.from('123456789');
+      const expectedCRC = 0x31c3;
+      expect(CRC16CCITT.calculate(testData)).toBe(expectedCRC);
+    });
+
+    it('should calculate CRC correctly with a start index', () => {
+      const testData = Buffer.from('12345');
+      const expectedCRC = 0x3352;
+      expect(CRC16CCITT.calculate(testData, 2)).toBe(expectedCRC);
     });
   });
 });
