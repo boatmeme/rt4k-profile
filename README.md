@@ -97,6 +97,12 @@ outputProfile.saveSync('/path/to/my/new_snes_profile.rt4');
 
 ## Changelog 
 
+### Version 0.1.1 (2024-07-03)
+
+- Support `Advanced -> System -> OSD/Firmware -> On Screen Display`
+- Implement `header` as a `RetroTinkReadOnlySetting`
+- Fixed Critical Bug https://github.com/boatmeme/rt4k-profile/issues/26 preventing files saved with this library from loading on RetroTink4k devices
+
 ### Version 0.1.0 (2024-06-29)
 
 - Initial release
