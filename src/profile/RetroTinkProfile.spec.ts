@@ -380,4 +380,12 @@ describe('RetroTinkProfile', () => {
       expect(profile.toString()).toEqual(profile.serializeValues(true));
     });
   });
+
+  describe('getCrcString()', () => {
+    it('should return a string representing the CRC in hex', async () => {
+      const profile = await RetroTinkProfile.build();
+      profile.setValue('input', 'HD-15|RGBS');
+      expect(profile.getCrcString()).toEqual('0x2F0E');
+    });
+  });
 });
