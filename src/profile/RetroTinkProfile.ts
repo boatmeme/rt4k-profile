@@ -236,7 +236,6 @@ export default class RetroTinkProfile {
   private static CRC_WRITE_INDEX = 32;
   private _getCrc(): Uint8Array {
     const START_INDEX = 128;
-
     const crcValue = CRC16CCITT.calculate(this._bytes, START_INDEX);
     return new Uint8Array([crcValue & 0xff, (crcValue >> 8) & 0xff]);
   }
@@ -262,6 +261,7 @@ export default class RetroTinkProfile {
   }
 
   getCrcString(): string {
+    this._setReadOnlyValues();
     const [lowByte, highByte] = this._getCrc();
     const crcValue = (highByte << 8) | lowByte;
     return `0x${crcValue.toString(16).toUpperCase().padStart(4, '0')}`;

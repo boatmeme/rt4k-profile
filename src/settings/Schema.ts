@@ -1,3 +1,4 @@
+import { SettingValidationError } from '../exceptions/RetroTinkProfileException';
 import { DataType } from './DataType';
 import {
   RetroTinkReadOnlySetting,
@@ -129,47 +130,19 @@ export const RetroTinkSettingsVersion = {
         const overrideVal = audio_input_override.asInt();
         const sourceVal = source_input.asInt();
         if (overrideVal == 0) {
-          switch (sourceVal) {
-            case 0:
+          switch (true) {
+            case sourceVal === 0:
               return new Uint8Array([5]);
-            case 3:
+            case [3, 4].includes(sourceVal):
               return new Uint8Array([3]);
-            case 4:
-              return new Uint8Array([3]);
-            case 7:
+            case [7, 8, 9].includes(sourceVal):
               return new Uint8Array([0]);
-            case 8:
-              return new Uint8Array([0]);
-            case 9:
-              return new Uint8Array([0]);
-            case 12:
+            case [12, 13, 14, 15, 16, 17].includes(sourceVal):
               return new Uint8Array([2]);
-            case 13:
-              return new Uint8Array([2]);
-            case 14:
-              return new Uint8Array([2]);
-            case 15:
-              return new Uint8Array([2]);
-            case 16:
-              return new Uint8Array([2]);
-            case 17:
-              return new Uint8Array([2]);
-            case 20:
+            case [20, 21, 22, 23, 24, 25, 26, 27].includes(sourceVal):
               return new Uint8Array([1]);
-            case 21:
-              return new Uint8Array([1]);
-            case 22:
-              return new Uint8Array([1]);
-            case 23:
-              return new Uint8Array([1]);
-            case 24:
-              return new Uint8Array([1]);
-            case 25:
-              return new Uint8Array([1]);
-            case 26:
-              return new Uint8Array([1]);
-            case 27:
-              return new Uint8Array([1]);
+            default:
+              throw new SettingValidationError('input', sourceVal, `unexpected 'input' value`);
           }
         } else {
           return new Uint8Array([overrideVal - 1]);
