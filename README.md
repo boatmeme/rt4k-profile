@@ -97,7 +97,11 @@ outputProfile.saveSync('/path/to/my/new_snes_profile.rt4');
 
 ## Changelog 
 
-### Version 0.1.1 (2024-07-03)
+### Version 1.0.1 (2024-07-03)
+
+ - Documentation update
+
+### Version 1.0.0 (2024-07-03)
 
 - Support `Advanced -> System -> OSD/Firmware -> On Screen Display`
 - Implement `header` as a `RetroTinkReadOnlySetting`
