@@ -97,15 +97,28 @@ outputProfile.saveSync('/path/to/my/new_snes_profile.rt4');
 
 ## Changelog 
 
+### Version 1.1.0 (2024-07-04)
+
+- Added support for the following settings:
+  - `advanced.acquisition.audio_input.sampling.sample_rate`
+  - `advanced.acquisition.audio_input.sampling.preamp_gain`
+  - `advanced.acquisition.audio_input.source.input_override`
+  - `advanced.acquisition.audio_input.source.input_swap`
+
 ### Version 1.0.1 (2024-07-03)
 
  - Documentation update
 
 ### Version 1.0.0 (2024-07-03)
 
-- Support `Advanced -> System -> OSD/Firmware -> On Screen Display`
-- Implement `header` as a `RetroTinkReadOnlySetting`
-- Fixed Critical Bug https://github.com/boatmeme/rt4k-profile/issues/26 preventing files saved with this library from loading on RetroTink4k devices
+- There are now **read-only** settings, such as `header`, which should be readable, but cannot be set
+- Profiles saved with this library will now work on the actual device 🤦
+- Added support for the following settings:
+  - `advanced.system.osd_firmware.banner_image.load_banner`
+  - `advanced.system.osd_firmware.on_screen_display.position`
+  - `advanced.system.osd_firmware.on_screen_display.auto_off`
+  - `advanced.system.osd_firmware.on_screen_display.hide_input_res`
+  - `advanced.system.osd_firmware.on_screen_display.enable_debug_osd`
 
 ### Version 0.1.0 (2024-06-29)
 

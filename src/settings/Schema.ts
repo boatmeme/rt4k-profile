@@ -1,5 +1,11 @@
+import { SettingValidationError } from '../exceptions/RetroTinkProfileException';
 import { DataType } from './DataType';
-import { RetroTinkReadOnlySetting, RetroTinkSetting, RetroTinkSettings } from './RetroTinkSetting';
+import {
+  RetroTinkReadOnlySetting,
+  RetroTinkSetting,
+  RetroTinkSettingValue,
+  RetroTinkSettings,
+} from './RetroTinkSetting';
 
 export type Primitive = string | number | boolean;
 
@@ -50,6 +56,18 @@ export type RetroTinkSettingsSchema = {
         strength: number;
       };
     };
+    acquisition: {
+      audio_input: {
+        sampling: {
+          sample_rate: string;
+          preamp_gain: string;
+        };
+        source: {
+          input_override: string;
+          input_swap: string;
+        };
+      };
+    };
     system: {
       osd_firmware: {
         banner_image: {
@@ -73,6 +91,8 @@ export const RetroTinkSettingsVersion = {
       desc: 'File Header (Read-Only)',
       byteRanges: [{ address: 0x0000, length: 12 }],
       type: DataType.STR,
+      derivedFrom: [],
+      deriveValue: () => new Uint8Array([82, 84, 52, 75, 32, 80, 114, 111, 102, 105, 108, 101]),
     }),
     new RetroTinkSetting({
       name: 'advanced.effects.mask.enabled',
@@ -91,6 +111,82 @@ export const RetroTinkSettingsVersion = {
       desc: 'Advanced -> Processing -> Mask -> Path',
       byteRanges: [{ address: 0x0090, length: 256 }],
       type: DataType.STR,
+    }),
+    new RetroTinkSetting({
+      name: 'advanced.acquisition.audio_input.sampling.sample_rate',
+      desc: 'Advanced -> Acquisition -> Audio Input -> Sampling -> Sample Rate',
+      byteRanges: [{ address: 0x1624, length: 1 }],
+      type: DataType.ENUM,
+      enums: [
+        { name: '48 kHz', value: new Uint8Array([0]) },
+        { name: '96 kHz', value: new Uint8Array([1]) },
+      ],
+    }),
+    new RetroTinkSetting({
+      name: 'advanced.acquisition.audio_input.sampling.preamp_gain',
+      desc: 'Advanced -> Acquisition -> Audio Input -> Sampling -> Pre-amp Gain',
+      byteRanges: [{ address: 0x1610, length: 1 }],
+      type: DataType.ENUM,
+      // Generates 105 enum entries for pre-amp gain from -24.0 dB to +28.0 dB in 0.5 dB steps
+      enums: Array.from({ length: 105 }, (_, i) => ({
+        name: `${i * 0.5 - 24 >= 0 ? '+' : ''}${(i * 0.5 - 24).toFixed(1)} dB`,
+        value: new Uint8Array([(208 + i) & 255]),
+      })),
+    }),
+    new RetroTinkReadOnlySetting({
+      name: 'input.audio' as RetroTinkSettingName,
+      desc: 'Audio Input (Read-Only)',
+      byteRanges: [{ address: 0x0368, length: 1 }],
+      type: DataType.INT,
+      derivedFrom: ['advanced.acquisition.audio_input.source.input_override', 'input'],
+      deriveValue: (...[audio_input_override, source_input]: RetroTinkSettingValue[]) => {
+        const overrideVal = audio_input_override.asInt();
+        const sourceVal = source_input.asInt();
+        if (overrideVal == 0) {
+          switch (true) {
+            case sourceVal === 0:
+              return new Uint8Array([5]);
+            case [3, 4].includes(sourceVal):
+              return new Uint8Array([3]);
+            case [7, 8, 9].includes(sourceVal):
+              return new Uint8Array([0]);
+            case [12, 13, 14, 15, 16, 17].includes(sourceVal):
+              return new Uint8Array([2]);
+            case [20, 21, 22, 23, 24, 25, 26, 27].includes(sourceVal):
+              return new Uint8Array([1]);
+            default:
+              throw new SettingValidationError('input', sourceVal, `unexpected 'input' value`);
+          }
+        } else {
+          return new Uint8Array([overrideVal - 1]);
+        }
+      },
+    }),
+    new RetroTinkSetting({
+      name: 'advanced.acquisition.audio_input.source.input_override',
+      desc: 'Advanced -> Acquisition -> Audio Input -> Source -> Input Override',
+      byteRanges: [{ address: 0x1618, length: 1 }],
+      type: DataType.ENUM,
+      enums: [
+        { name: 'Off', value: new Uint8Array([0]) },
+        { name: 'RCA', value: new Uint8Array([1]) },
+        { name: 'HD-15', value: new Uint8Array([2]) },
+        { name: 'SCART', value: new Uint8Array([3]) },
+        { name: 'Front', value: new Uint8Array([4]) },
+        { name: 'S/PDIF', value: new Uint8Array([5]) },
+      ],
+    }),
+    new RetroTinkSetting({
+      name: 'advanced.acquisition.audio_input.source.input_swap',
+      desc: 'Advanced -> Acquisition -> Audio Input -> Source -> Input Swap',
+      byteRanges: [{ address: 0x1620, length: 1 }],
+      type: DataType.ENUM,
+      enums: [
+        { name: 'Off', value: new Uint8Array([0]) },
+        { name: 'Mono (Left)', value: new Uint8Array([1]) },
+        { name: 'Mono (Right)', value: new Uint8Array([2]) },
+        { name: 'L/R Swap', value: new Uint8Array([3]) },
+      ],
     }),
     new RetroTinkSetting({
       name: 'advanced.system.osd_firmware.banner_image.load_banner',
@@ -150,32 +246,29 @@ export const RetroTinkSettingsVersion = {
     new RetroTinkSetting({
       name: 'input',
       desc: 'Input',
-      byteRanges: [
-        { address: 0x0368, length: 1 },
-        { address: 0x5869, length: 1 },
-      ],
+      byteRanges: [{ address: 0x5869, length: 1 }],
       type: DataType.ENUM,
       enums: [
-        { name: 'HDMI', value: new Uint8Array([5, 0]) },
-        { name: 'Front|Composite', value: new Uint8Array([3, 3]) },
-        { name: 'Front|S-Video', value: new Uint8Array([3, 4]) },
-        { name: 'RCA|YPbPr', value: new Uint8Array([0, 7]) },
-        { name: 'RCA|RGsB', value: new Uint8Array([0, 8]) },
-        { name: 'RCA|CVBS on Green', value: new Uint8Array([0, 9]) },
-        { name: 'SCART|RGBS (75 Ohm)', value: new Uint8Array([2, 12]) },
-        { name: 'SCART|RGsB', value: new Uint8Array([2, 13]) },
-        { name: 'SCART|YPbPr', value: new Uint8Array([2, 14]) },
-        { name: 'SCART|CVBS on Pin 20', value: new Uint8Array([2, 15]) },
-        { name: 'SCART|CVBS on Green', value: new Uint8Array([2, 16]) },
-        { name: 'SCART|Y/C on Pin 20/Red', value: new Uint8Array([2, 17]) },
-        { name: 'HD-15|RGBHV', value: new Uint8Array([1, 20]) },
-        { name: 'HD-15|RGBS', value: new Uint8Array([1, 21]) },
-        { name: 'HD-15|RGsB', value: new Uint8Array([1, 22]) },
-        { name: 'HD-15|YPbPr', value: new Uint8Array([1, 23]) },
-        { name: 'HD-15|CVBS on Hsync', value: new Uint8Array([1, 24]) },
-        { name: 'HD-15|CVBS on Green', value: new Uint8Array([1, 25]) },
-        { name: 'HD-15|Y/C on Green/Red', value: new Uint8Array([1, 26]) },
-        { name: 'HD-15|Y/C on G/R (Enh.)', value: new Uint8Array([1, 27]) },
+        { name: 'HDMI', value: new Uint8Array([0]) },
+        { name: 'Front|Composite', value: new Uint8Array([3]) },
+        { name: 'Front|S-Video', value: new Uint8Array([4]) },
+        { name: 'RCA|YPbPr', value: new Uint8Array([7]) },
+        { name: 'RCA|RGsB', value: new Uint8Array([8]) },
+        { name: 'RCA|CVBS on Green', value: new Uint8Array([9]) },
+        { name: 'SCART|RGBS (75 Ohm)', value: new Uint8Array([12]) },
+        { name: 'SCART|RGsB', value: new Uint8Array([13]) },
+        { name: 'SCART|YPbPr', value: new Uint8Array([14]) },
+        { name: 'SCART|CVBS on Pin 20', value: new Uint8Array([15]) },
+        { name: 'SCART|CVBS on Green', value: new Uint8Array([16]) },
+        { name: 'SCART|Y/C on Pin 20/Red', value: new Uint8Array([17]) },
+        { name: 'HD-15|RGBHV', value: new Uint8Array([20]) },
+        { name: 'HD-15|RGBS', value: new Uint8Array([21]) },
+        { name: 'HD-15|RGsB', value: new Uint8Array([22]) },
+        { name: 'HD-15|YPbPr', value: new Uint8Array([23]) },
+        { name: 'HD-15|CVBS on Hsync', value: new Uint8Array([24]) },
+        { name: 'HD-15|CVBS on Green', value: new Uint8Array([25]) },
+        { name: 'HD-15|Y/C on Green/Red', value: new Uint8Array([26]) },
+        { name: 'HD-15|Y/C on G/R (Enh.)', value: new Uint8Array([27]) },
       ],
     }),
     new RetroTinkSetting({

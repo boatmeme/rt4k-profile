@@ -20,6 +20,11 @@ interface RetroTinkSettingParams {
   enums?: RetroTinkEnumValue[];
 }
 
+interface RetroTinkReadOnlySettingParams extends RetroTinkSettingParams {
+  derivedFrom: RetroTinkSettingName[];
+  deriveValue: (...values: RetroTinkSettingValue[]) => Uint8Array;
+}
+
 interface RetroTinkEnumValue {
   name: string;
   value: Uint8Array;
@@ -63,7 +68,15 @@ export class RetroTinkSetting {
   }
 }
 
-export class RetroTinkReadOnlySetting extends RetroTinkSetting {}
+export class RetroTinkReadOnlySetting extends RetroTinkSetting {
+  derivedFrom: RetroTinkSettingName[];
+  deriveValue: (...values: RetroTinkSettingValue[]) => Uint8Array;
+  constructor(params: RetroTinkReadOnlySettingParams) {
+    super(params);
+    this.derivedFrom = params.derivedFrom;
+    this.deriveValue = params.deriveValue;
+  }
+}
 
 export type RetroTinkSettingsValuesPlainObject = {
   [key: string]: string | number | boolean | RetroTinkSettingsValuesPlainObject;
